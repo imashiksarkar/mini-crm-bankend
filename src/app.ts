@@ -1,5 +1,5 @@
 import { errorHandler, notFoundHandler } from '@middlewares/index'
-import appModule from '@modules/auth'
+import authModule from '@modules/auth'
 import express, { Request, Response } from 'express'
 
 import { config } from 'dotenv'
@@ -22,7 +22,7 @@ app.get('/', (_req: Request, res: Response) => {
   })
 })
 
-app.use(appModule)
+app.use(authModule)
 
 app.use(notFoundHandler())
 app.use(errorHandler())

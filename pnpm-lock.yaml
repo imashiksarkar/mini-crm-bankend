@@ -42,6 +42,9 @@ importers:
       drizzle-kit:
         specifier: ^0.31.0
         version: 0.31.0
+      drizzle-zod:
+        specifier: ^0.7.1
+        version: 0.7.1(drizzle-orm@0.42.0(@types/pg@8.11.13)(pg@8.15.5))(zod@3.24.3)
       supertest:
         specifier: ^7.1.0
         version: 7.1.0
@@ -785,6 +788,12 @@ packages:
         optional: true
       sqlite3:
         optional: true
+
+  drizzle-zod@0.7.1:
+    resolution: {integrity: sha512-nZzALOdz44/AL2U005UlmMqaQ1qe5JfanvLujiTHiiT8+vZJTBFhj3pY4Vk+L6UWyKFfNmLhk602Hn4kCTynKQ==}
+    peerDependencies:
+      drizzle-orm: '>=0.36.0'
+      zod: '>=3.0.0'
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -1950,6 +1959,11 @@ snapshots:
     optionalDependencies:
       '@types/pg': 8.11.13
       pg: 8.15.5
+
+  drizzle-zod@0.7.1(drizzle-orm@0.42.0(@types/pg@8.11.13)(pg@8.15.5))(zod@3.24.3):
+    dependencies:
+      drizzle-orm: 0.42.0(@types/pg@8.11.13)(pg@8.15.5)
+      zod: 3.24.3
 
   dunder-proto@1.0.1:
     dependencies:

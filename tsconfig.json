@@ -2,7 +2,6 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "CommonJS",
-    "rootDir": "./src",
     "outDir": "./dist",
     "moduleResolution": "node",
     "esModuleInterop": true,
@@ -20,13 +19,5 @@
     "moduleDetection": "force",
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true
-  },
-  "exclude": [
-    "./src/test",
-    "./src/**/__test__",
-    "./dist",
-    "./node_modules",
-    "vite.config.mts",
-    "./drizzle.config.ts"
-  ]
+  }
 }

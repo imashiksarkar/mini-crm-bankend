@@ -3,10 +3,7 @@ import { Hashing } from '@src/lib'
 
 export const signupUserDto = z.object({
   name: z.string(),
-  email: z
-    .string()
-    .email()
-    .transform((arg) => Hashing.hash(arg)),
+  email: z.string().email(),
   password: z
     .string()
     .min(6)
@@ -22,7 +19,7 @@ export const signupUserDto = z.object({
       }
     )
     .transform(async (arg) => await Hashing.hash(arg)),
-  role: z.enum(['user', 'admin']).default('user'),
+  role: z.array(z.enum(['user', 'admin']).default('user')),
 })
 
 export const signinUserDto = z.object({
@@ -46,3 +43,5 @@ export const signinUserDto = z.object({
     )
     .transform(async (arg) => await Hashing.hash(arg)),
 })
+
+export type SignupUserDto = z.infer<typeof signupUserDto>

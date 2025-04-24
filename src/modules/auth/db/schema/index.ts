@@ -5,16 +5,18 @@ import {
   pgTable,
   text,
   timestamp,
-  uuid,
   uniqueIndex,
+  uuid,
 } from 'drizzle-orm/pg-core'
+import { createSelectSchema } from 'drizzle-zod'
+import { z } from 'zod'
 
 export const userRoleEnum = pgEnum('user_role', ['user', 'admin'])
 
 export const usersTable = pgTable(
   'users',
   {
-    id: uuid('id').primaryKey(),
+    id: uuid('id').defaultRandom().primaryKey(),
     name: text('name').notNull(),
     email: text('email').notNull(),
     password: text('password').notNull(),
@@ -31,7 +33,7 @@ export const usersTable = pgTable(
 export const tokensTable = pgTable(
   'tokens',
   {
-    id: uuid('id').primaryKey(),
+    id: uuid('id').defaultRandom().primaryKey(),
     userId: uuid('user_id')
       .notNull()
       .references(() => usersTable.id, { onDelete: 'cascade' }),
@@ -60,3 +62,6 @@ export const tokensRelations = relations(tokensTable, ({ one }) => ({
     references: [usersTable.id],
   }),
 }))
+
+const userSchema = createSelectSchema(usersTable)
+export type UserSchema = z.infer<typeof userSchema>

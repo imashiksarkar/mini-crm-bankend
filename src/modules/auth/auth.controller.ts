@@ -1,4 +1,5 @@
 import { Request, Response, Router } from 'express'
+import { signupUserDto } from './auth.dtos'
 import AuthService from './auth.service'
 
 class AuthController {
@@ -6,6 +7,7 @@ class AuthController {
   private static readonly authService: typeof AuthService = AuthService
   private static readonly getPath = (path: string) => `/auth${path}`
 
+  /* Prepare the module */
   static get authModule() {
     try {
       const EOFIndex = Object.keys(this).indexOf('EOF') + 1 || 0
@@ -23,14 +25,28 @@ class AuthController {
 
   /* Hare are all the routes */
   private static readonly signup = async (path = this.getPath('/signup')) => {
-    this.authService.log()
+    this.router.post(path, async (req: Request, res: Response) => {
+      try {
+        const body = await signupUserDto.parseAsync(req.body)
 
-    this.router.get(path, async (_req: Request, res: Response) => {
-      res.send({
-        success: true,
-        code: 200,
-        // data,
-      })
+        const { password, email, ...signedUpUser } =
+          await this.authService.signup(body)
+
+        res.status(201).json({
+          success: true,
+          code: 201,
+          data: signedUpUser,
+        })
+      } catch (error) {
+        res.status(400).json({
+          success: false,
+          code: 400,
+          error:{
+            code: 400,
+            message: [error],
+          }
+        })
+      }
     })
   }
 
@@ -47,4 +63,4 @@ class AuthController {
   }
 }
 
-export default AuthController.authModule
+export default AuthController.authModule as Router

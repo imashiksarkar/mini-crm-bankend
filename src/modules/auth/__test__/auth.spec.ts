@@ -1,14 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import { signupUserDto } from '../auth.dtos'
 import { ZodError } from 'zod'
-import { Hashing } from '../../../lib'
+import { Hashing } from '@src/lib'
+import app from '@src/app'
+import request from 'supertest'
 
 describe('auth', () => {
   const cred = {
     name: 'Ashik S',
-    email: 'ashik@me.com',
+    email: 'ashik@gmail.com',
     password: 'A5shiklngya',
-    role: 'admin',
+    role: ['admin'],
   }
 
   it('validate signup user dto', async () => {
@@ -19,7 +21,7 @@ describe('auth', () => {
     } catch (error) {
       if (error instanceof ZodError)
         console.log((error as ZodError).flatten().fieldErrors)
-      console.log(error.message)
+      console.log(error)
     }
   })
 
@@ -27,12 +29,23 @@ describe('auth', () => {
     try {
       const data = await signupUserDto.parseAsync(cred)
 
-      expect(Hashing.verify(cred.password, data.password)).toBe(true)
+      expect(await Hashing.verify(cred.password, data.password)).toBe(true)
     } catch (error) {
       if (error instanceof ZodError)
         console.log((error as ZodError).flatten().fieldErrors)
 
-      console.log(error.message)
+      console.log(error)
+    }
+  })
+
+  it.only('should be able to signup', async () => {
+    try {
+      // await request(app).post('/auth/signup').send(cred)
+      const res = await request(app).post('/auth/signup').send(cred)
+      // console.log('-----', res.body)
+      console.log('-----', (res.error as any).text)
+    } catch (error) {
+      console.log(error)
     }
   })
 })

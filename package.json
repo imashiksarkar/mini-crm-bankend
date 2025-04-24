@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch ./src/server.ts",
-    "build": "rm -rf ./dist && tsc && tsc-alias",
+    "build": "rm -rf ./dist && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "vitest",
     "test:run": "vitest --run",
     "compose:up": "docker compose --env-file ./.env.test up -d",
@@ -39,6 +39,7 @@
     "@types/supertest": "^6.0.3",
     "dotenv": "^16.5.0",
     "drizzle-kit": "^0.31.0",
+    "drizzle-zod": "^0.7.1",
     "supertest": "^7.1.0",
     "tsc-alias": "^1.8.15",
     "tsx": "^4.19.3",
