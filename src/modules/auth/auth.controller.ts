@@ -1,6 +1,7 @@
 import { Request, Response, Router } from 'express'
 import { signupUserDto } from './auth.dtos'
 import AuthService from './auth.service'
+import { catchAsync } from '@src/lib'
 
 class AuthController {
   private static readonly router = Router()
@@ -25,41 +26,50 @@ class AuthController {
 
   /* Hare are all the routes */
   private static readonly signup = async (path = this.getPath('/signup')) => {
-    this.router.post(path, async (req: Request, res: Response) => {
-      try {
-        const body = await signupUserDto.parseAsync(req.body)
+    this.router.post(
+      path,
+      catchAsync(async (req: Request, res: Response) => {
+        try {
+          const body = await signupUserDto.parseAsync(req.body)
 
-        const { password, email, ...signedUpUser } =
-          await this.authService.signup(body)
+          const { password, email, ...signedUpUser } =
+            await this.authService.signup(body)
 
-        res.status(201).json({
-          success: true,
-          code: 201,
-          data: signedUpUser,
-        })
-      } catch (error) {
-        res.status(400).json({
-          success: false,
-          code: 400,
-          error:{
+          res.status(201).json({
+            success: true,
+            code: 201,
+            data: signedUpUser,
+          })
+        } catch (error) {
+          res.status(400).json({
+            success: false,
             code: 400,
-            message: [error],
-          }
-        })
-      }
-    })
+            error: {
+              code: 400,
+              message: [error],
+            },
+          })
+        }
+      })
+    )
   }
 
   private static readonly signin = async (path = this.getPath('/signin')) => {
-    this.router.get(path, (_req: Request, res: Response) => {
-      res.send('Hello World!')
-    })
+    this.router.get(
+      path,
+      catchAsync(async (_req: Request, res: Response) => {
+        res.send('Hello World!')
+      })
+    )
   }
 
   private static readonly signout = async (path = this.getPath('/signout')) => {
-    this.router.get(path, (_req: Request, res: Response) => {
-      res.send('Hello World!')
-    })
+    this.router.get(
+      path,
+      catchAsync(async (_req: Request, res: Response) => {
+        res.send('Hello World!')
+      })
+    )
   }
 }
 
