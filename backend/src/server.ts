@@ -1,5 +1,5 @@
 import app from '@src/app'
-import validatedEnv from '@lib/index'
+import { validatedEnv } from '@lib/index'
 
 const PORT = validatedEnv.PORT || 3000
 

@@ -26,6 +26,7 @@
     "./src/**/__test__",
     "./dist",
     "./node_modules",
-    "./vite.config.ts"
+    "./vite.config.ts",
+    "./drizzle.config.ts"
   ]
 }

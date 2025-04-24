@@ -1,1 +1,1 @@
-export { default } from '@lib/validatedEnv'
+export { default as validatedEnv } from '@lib/validatedEnv'
