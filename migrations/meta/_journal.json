@@ -15,6 +15,13 @@
       "when": 1745503117914,
       "tag": "0001_demonic_zarek",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1745537211699,
+      "tag": "0002_chief_doctor_faustus",
+      "breakpoints": true
     }
   ]
 }

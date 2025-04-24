@@ -1,6 +1,6 @@
 services:
   postgres-test:
-    image: postgres
+    image: postgres:16.8-alpine
     container_name: postgres-test
     ports:
       - '5433:5432'

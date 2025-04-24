@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express'
 import { signupUserDto } from './auth.dtos'
 import AuthService from './auth.service'
-import { catchAsync } from '@src/lib'
+import { catchAsync, response } from '@src/lib'
 
 class AuthController {
   private static readonly router = Router()
@@ -29,27 +29,13 @@ class AuthController {
     this.router.post(
       path,
       catchAsync(async (req: Request, res: Response) => {
-        try {
-          const body = await signupUserDto.parseAsync(req.body)
+        const body = await signupUserDto.parseAsync(req.body)
 
-          const { password, email, ...signedUpUser } =
-            await this.authService.signup(body)
+        const { password, email, ...signedUpUser } =
+          await this.authService.signup(body)
 
-          res.status(201).json({
-            success: true,
-            code: 201,
-            data: signedUpUser,
-          })
-        } catch (error) {
-          res.status(400).json({
-            success: false,
-            code: 400,
-            error: {
-              code: 400,
-              message: [error],
-            },
-          })
-        }
+        const r = response().success(201).data(signedUpUser).exec()
+        res.status(r.code).json(r)
       })
     )
   }
