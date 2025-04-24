@@ -1,31 +1,62 @@
-import { pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
+import { relations } from 'drizzle-orm'
+import {
+  index,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core'
 
 export const userRoleEnum = pgEnum('user_role', ['user', 'admin'])
 
-export const usersTable = pgTable('users', {
-  id: uuid('id').primaryKey(),
-  name: text('name').notNull(),
-  email: text('email').notNull(),
-  password: text('password').notNull(),
-  role: userRoleEnum('role').array().notNull().default(['user']),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at')
-    .notNull()
-    .defaultNow()
-    .$onUpdate(() => new Date()),
-})
+export const usersTable = pgTable(
+  'users',
+  {
+    id: uuid('id').primaryKey(),
+    name: text('name').notNull(),
+    email: text('email').notNull(),
+    password: text('password').notNull(),
+    role: userRoleEnum('role').array().notNull().default(['user']),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at')
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [uniqueIndex('email_idx').on(table.email)]
+)
 
-export const tokensTable = pgTable('tokens', {
-  id: uuid('id').primaryKey(),
-  userId: uuid('user_id')
-    .notNull()
-    .references(() => usersTable.id, { onDelete: 'cascade' }),
-  token: text('token').notNull(),
-  expiresAt: timestamp('expires_at').notNull(),
-  revokedAt: timestamp('revoked_at'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at')
-    .notNull()
-    .defaultNow()
-    .$onUpdate(() => new Date()),
-})
+export const tokensTable = pgTable(
+  'tokens',
+  {
+    id: uuid('id').primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => usersTable.id, { onDelete: 'cascade' }),
+    token: text('token').notNull(),
+    expiresAt: timestamp('expires_at').notNull(),
+    revokedAt: timestamp('revoked_at'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at')
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    index('token_idx').on(table.token),
+    index('user_id_idx').on(table.userId),
+  ]
+)
+
+export const usersRelations = relations(usersTable, ({ many }) => ({
+  tokens: many(tokensTable),
+}))
+
+export const tokensRelations = relations(tokensTable, ({ one }) => ({
+  user: one(usersTable, {
+    fields: [tokensTable.userId],
+    references: [usersTable.id],
+  }),
+}))
