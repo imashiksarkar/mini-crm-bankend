@@ -1,25 +1,29 @@
+import '@lib/validatedEnv'
 import { errorHandler, notFoundHandler } from '@middlewares/index'
 import authModule from '@modules/auth'
+import { getRelativeTime, response } from '@src/lib'
 import express, { Request, Response } from 'express'
 
-import { config } from 'dotenv'
+const startTime = Date.now()
 
 const app = express()
-
-config({
-  path: './.env.local',
-})
 
 app.use(express.json())
 
 app.get('/', (_req: Request, res: Response) => {
-  res.send({
-    success: true,
-    code: 200,
-    data: {
-      message: 'App is running fine. 🚀',
-    },
-  })
+  const r = response().success(200).message('App is running fine 🚀').exec()
+  res.status(r.code).json(r)
+})
+
+app.get('/health', (_req: Request, res: Response) => {
+  const r = response()
+    .success(200)
+    .message('App is running fine 🚀')
+    .data({
+      uptime: getRelativeTime(startTime),
+    })
+    .exec()
+  res.status(r.code).json(r)
 })
 
 app.use(authModule)

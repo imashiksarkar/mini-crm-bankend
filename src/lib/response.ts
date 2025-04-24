@@ -1,34 +1,29 @@
 import { STATUS_CODES } from 'node:http'
 
-class Response {
-  static readonly new = () => {
-    const nr = new Response()
-
-    return { success: nr.success, error: nr.error }
-  }
-
-  private readonly res: {
-    success: boolean
-    code: number
-    status: string
-    data?: Object | Array<unknown>
-    message?: string[]
-    error?: {
-      message: string[]
-      fields?: {
-        [key: string]: string[]
-      }
+export class Res {
+  success = false
+  code = 500
+  status = 'UNKNOWN'
+  data?: Object | Array<unknown> = {}
+  message?: string[] = []
+  error?: {
+    message: string[]
+    fields?: {
+      [key: string]: string[]
     }
   } = {
-    success: false,
-    code: 200,
-    status: 'success',
-    data: {},
     message: [],
-    error: {
-      message: [],
-      fields: {},
-    },
+    fields: {},
+  }
+}
+
+class Response {
+  constructor(private readonly res: Res) {}
+
+  static readonly new = () => {
+    const { success, error } = new Response(new Res())
+
+    return { success, error }
   }
 
   exec = () => {
@@ -44,8 +39,6 @@ class Response {
     !Object.keys(this.res.error?.fields!).length &&
       delete this.res.error?.fields
     !this.res.error?.message!.length && delete this.res.error
-
-    console.log(this.res)
 
     return this.res
   }
