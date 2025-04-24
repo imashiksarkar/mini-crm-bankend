@@ -1,3 +1,5 @@
+import response, { Res } from '@src/lib/response'
+import { DrizzleError } from 'drizzle-orm'
 import { Request, ErrorRequestHandler, NextFunction, Response } from 'express'
 
 const errorHandler =
@@ -8,24 +10,21 @@ const errorHandler =
     res: Response,
     _next: NextFunction
   ) => {
-    if (err instanceof Error) {
-      res.status(500).send({
-        success: false,
-        error: {
-          code: 500,
-          message: [err.message],
-        },
-      })
+    if (err instanceof Res) {
+      res.status(err.code).json(err)
+      return
+    } else if (err instanceof DrizzleError) {
+      const e = response().error(500).message(err.message).exec()
+      res.status(e.code).json(e)
+      return
+    } else if (err instanceof Error) {
+      const e = response().error(500).message(err.message).exec()
+      res.status(e.code).json(e)
       return
     }
 
-    res.status(500).send({
-      success: false,
-      error: {
-        code: 500,
-        message: ['Something went wrong'],
-      },
-    })
+    const e = response().error(500).message('Something went wrong').exec()
+    res.status(e.code).json(e)
   }
 
 export default errorHandler
