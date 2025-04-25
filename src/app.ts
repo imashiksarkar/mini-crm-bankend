@@ -14,7 +14,7 @@ app.use(express.json())
 app.use(cookieParser())
 
 const getApp = async () => {
-  // await db.connect(validatedEnv.DB_URL)
+  await DB.connect(validatedEnv.DB_URL)
 
   app.get('/', (_req: Request, res: Response) => {
     const r = response().success(200).message('App is running fine 🚀').exec()
