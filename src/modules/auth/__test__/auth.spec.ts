@@ -106,4 +106,17 @@ describe('auth', () => {
     expect(res.body.success).toBe(false)
     expect(res.body.error.message[0]).toMatch(/required/gi)
   })
+
+  it('lets usr to refresh token', async () => {
+    cred.role = ['admin']
+    const user = await request(app).post('/auth/signup').send(cred).expect(201)
+
+    const [_, refreshToken] = user.headers['set-cookie']
+
+    const res = await request(app)
+      .post('/auth/refresh')
+      .set('Cookie', refreshToken)
+
+    expect(res.body.success).toBe(true)
+  })
 })

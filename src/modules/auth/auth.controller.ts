@@ -1,4 +1,4 @@
-import { catchAsync, response, validatedEnv } from '@src/lib'
+import { catchAsync, jwt, response, validatedEnv } from '@src/lib'
 import { Request, Response, Router } from 'express'
 import { changeUserRoleDto, signinUserDto, signupUserDto } from './auth.dtos'
 import AuthService from './auth.service'
@@ -129,6 +129,36 @@ class AuthController {
           .success(200)
           .message('Role changed successfully')
           .data(user)
+          .exec()
+        res.status(r.code).json(r)
+      })
+    )
+  }
+
+  private static readonly refresh = async (path = this.getPath('/refresh')) => {
+    this.router.post(
+      path,
+      catchAsync(async (req: Request, res: Response) => {
+        const refreshToken: string = req.cookies['refreshToken'] ?? ''
+        await jwt.decodeToken(refreshToken)
+
+        const { accessToken, refreshToken: newRefreshToken } =
+          await this.authService.refresh(refreshToken)
+
+        res.cookie('accessToken', accessToken, {
+          httpOnly: true,
+          secure: validatedEnv.IS_PRODUCTION,
+          sameSite: 'lax',
+        })
+        res.cookie('refreshToken', newRefreshToken, {
+          httpOnly: true,
+          secure: validatedEnv.IS_PRODUCTION,
+          sameSite: 'lax',
+        })
+
+        const r = response()
+          .success(200)
+          .message('Tokens refreshed successfully')
           .exec()
         res.status(r.code).json(r)
       })

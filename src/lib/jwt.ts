@@ -2,6 +2,13 @@ import jwt from 'jsonwebtoken'
 import validatedEnv from './validatedEnv'
 
 export default class JWT {
+  static get accessTokenValidityMs() {
+    return Date.now() + validatedEnv.ACC_TOKEN_EXP
+  }
+  static get refreshTokenValidityMs() {
+    return Date.now() + validatedEnv.REF_TOKEN_EXP
+  }
+
   static createAccessToken = async (user: {
     id: string
     email: string
@@ -15,7 +22,7 @@ export default class JWT {
     }
 
     const accessToken = await jwt.sign(payload, validatedEnv.JWT_SECRET, {
-      expiresIn: validatedEnv.ACC_TOKEN_EXP,
+      expiresIn: this.accessTokenValidityMs,
       subject: user.id,
     })
 
@@ -26,7 +33,7 @@ export default class JWT {
     const payload = {}
 
     const accessToken = await jwt.sign(payload, validatedEnv.JWT_SECRET, {
-      expiresIn: validatedEnv.REF_TOKEN_EXP,
+      expiresIn: this.refreshTokenValidityMs,
       subject: user.id,
     })
 

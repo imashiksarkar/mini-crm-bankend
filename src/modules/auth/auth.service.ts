@@ -37,7 +37,7 @@ export default class AuthService {
       {
         userId: user.id,
         token: refreshToken,
-        expiresAt: new Date(validatedEnv.REF_TOKEN_EXP),
+        expiresAt: new Date(jwt.refreshTokenValidityMs),
       },
     ])
 
@@ -71,12 +71,11 @@ export default class AuthService {
       id,
     })
 
-    // save refresh token to db
     await db.insert(tokensTable).values([
       {
         userId: id,
         token: refreshToken,
-        expiresAt: new Date(validatedEnv.REF_TOKEN_EXP),
+        expiresAt: new Date(jwt.refreshTokenValidityMs),
       },
     ])
 
@@ -110,5 +109,52 @@ export default class AuthService {
       })
 
     return newUser
+  }
+
+  static readonly refresh = async (refreshToken: string) => {
+    const [deletedToken] = await db
+      .delete(tokensTable)
+      .where(eq(tokensTable.token, refreshToken))
+      .returning()
+
+    if (!deletedToken)
+      throw response().error(401).message('Refresh token is missing.').exec()
+
+    const [user] = await db
+      .select({
+        id: usersTable.id,
+        name: usersTable.name,
+        email: usersTable.email,
+        role: usersTable.role,
+      })
+      .from(usersTable)
+      .where(eq(usersTable.id, deletedToken.userId))
+
+    if (!user) throw response().error(401).message('User not found').exec()
+
+    const { email, id, name, role } = user
+    const accessToken = await jwt.createAccessToken({
+      id,
+      name,
+      email,
+      role,
+    })
+
+    const newRefreshToken = await jwt.createRefreshToken({
+      id,
+    })
+
+    await db.insert(tokensTable).values([
+      {
+        userId: deletedToken.userId,
+        token: newRefreshToken,
+        expiresAt: new Date(jwt.refreshTokenValidityMs),
+      },
+    ])
+
+    return {
+      accessToken,
+      refreshToken: newRefreshToken,
+    }
   }
 }
