@@ -42,8 +42,9 @@ describe('auth', () => {
     try {
       // await request(app).post('/auth/signup').send(cred)
       const res = await request(app).post('/auth/signup').send(cred)
-      // console.log('-----', res.body)
-      console.log('-----', (res.error as any).text)
+      console.log('-----', res.body)
+      // console.log('-----', res.headers['set-cookie'])
+      // console.log('-----', (res.error as any).text)
     } catch (error) {
       console.log(error)
     }

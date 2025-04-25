@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express'
 import { signupUserDto } from './auth.dtos'
 import AuthService from './auth.service'
-import { catchAsync, response } from '@src/lib'
+import { catchAsync, response, validatedEnv } from '@src/lib'
 
 class AuthController {
   private static readonly router = Router()
@@ -31,8 +31,19 @@ class AuthController {
       catchAsync(async (req: Request, res: Response) => {
         const body = await signupUserDto.parseAsync(req.body)
 
-        const { password, email, ...signedUpUser } =
-          await this.authService.signup(body)
+        const signedUpUser = await this.authService.signup(body)
+
+        const { token } = signedUpUser
+        res.cookie('accessToken', token.accessToken, {
+          httpOnly: true,
+          secure: validatedEnv.IS_PRODUCTION,
+          sameSite: 'lax',
+        })
+        res.cookie('refreshToken', token.refreshToken, {
+          httpOnly: true,
+          secure: validatedEnv.IS_PRODUCTION,
+          sameSite: 'lax',
+        })
 
         const r = response().success(201).data(signedUpUser).exec()
         res.status(r.code).json(r)

@@ -19,6 +19,8 @@ const validatedEnv = z
     PORT: z.coerce.number().default(3000),
     JWT_SECRET: z.string().trim().min(2),
     DB_URL: z.string().trim().min(2),
+    ACC_TOKEN_EXP: z.coerce.number(),
+    REF_TOKEN_EXP: z.coerce.number(),
   })
   .transform((oldEnvs) => ({
     ...oldEnvs,

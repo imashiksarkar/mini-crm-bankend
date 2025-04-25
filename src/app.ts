@@ -3,12 +3,14 @@ import { errorHandler, notFoundHandler } from '@middlewares/index'
 import authModule from '@modules/auth'
 import { getRelativeTime, response } from '@src/lib'
 import express, { Request, Response } from 'express'
+import cookieParser from 'cookie-parser'
 
 const startTime = Date.now()
 
 const app = express()
 
 app.use(express.json())
+app.use(cookieParser())
 
 app.get('/', (_req: Request, res: Response) => {
   const r = response().success(200).message('App is running fine 🚀').exec()
