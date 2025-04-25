@@ -56,6 +56,12 @@ describe('auth', () => {
     ])
   })
 
+  it('should return all roles', async () => {
+    const user = await request(app).get('/auth/roles').send(cred).expect(200)
+
+    console.log(user.body)
+  })
+
   it.todo('admin can change user role', async () => {})
 
   it.todo('allows admin to change the user role', async () => {})

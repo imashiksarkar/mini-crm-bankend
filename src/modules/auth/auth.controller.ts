@@ -2,6 +2,7 @@ import { catchAsync, response, validatedEnv } from '@src/lib'
 import { Request, Response, Router } from 'express'
 import { signinUserDto, signupUserDto } from './auth.dtos'
 import AuthService from './auth.service'
+import { userRoleEnum } from './db/schema'
 
 class AuthController {
   private static readonly router = Router()
@@ -25,6 +26,22 @@ class AuthController {
   private static readonly EOF = null // routes begin after line
 
   /* Hare are all the routes */
+  private static readonly getRoles = async (path = this.getPath('/roles')) => {
+    this.router.get(
+      path,
+      catchAsync(async (req: Request, res: Response) => {
+        const roles = await this.authService.getRoles()
+
+        const r = response()
+          .success(200)
+          .data(roles)
+          .message('Here are all the roles.')
+          .exec()
+        res.status(r.code).json(r)
+      })
+    )
+  }
+
   private static readonly signup = async (path = this.getPath('/signup')) => {
     this.router.post(
       path,

@@ -2,7 +2,7 @@ import { db } from '@src/config'
 import { jwt, response, validatedEnv } from '@src/lib'
 import { eq } from 'drizzle-orm'
 import { SigninUserDto, SignupUserDto } from './auth.dtos'
-import { tokensTable, usersTable } from './db/schema'
+import { tokensTable, userRoleEnum, usersTable } from './db/schema'
 
 export default class AuthService {
   static readonly signup = async (userAttr: SignupUserDto) => {
@@ -94,4 +94,6 @@ export default class AuthService {
       .delete(tokensTable)
       .where(eq(tokensTable.token, userAttr.refreshToken))
   }
+
+  static readonly getRoles = async () => userRoleEnum.enumValues
 }
