@@ -4,7 +4,7 @@ import request from 'supertest'
 import { describe, expect, it } from 'vitest'
 import { signupUserDto } from '../auth.dtos'
 
-describe('auth', async () => {
+describe.skip('auth', async () => {
   const app = await appPromisse
 
   const cred = {

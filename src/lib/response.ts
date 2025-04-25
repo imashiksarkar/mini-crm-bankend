@@ -43,9 +43,14 @@ class Response {
     return this.res
   }
 
-  message = (msg: string) => {
-    if (this.res.success) this.res.message?.push(msg)
-    else this.res.error?.message?.push(msg)
+  message = (msg: string | string[]) => {
+    if (this.res.success) {
+      if (typeof msg === 'string') this.res.message?.push(msg)
+      else this.res.message?.push(...msg)
+    } else {
+      if (typeof msg === 'string') this.res.error?.message?.push(msg)
+      else this.res.error?.message?.push(...msg)
+    }
 
     const { data, message, fields, exec } = this
 

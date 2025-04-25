@@ -1,5 +1,9 @@
-import { Router } from 'express'
+import { Router, Request, Response } from 'express'
 import ClientService from './client.service'
+import { catchAsync, response } from '@src/lib'
+import { createClientDto } from './client.dtos'
+import { requireAuth } from '@src/middlewares'
+import { ReqWithUser } from '@src/middlewares/requireAuth.middleware'
 
 class ClientController {
   private static readonly router = Router()
@@ -23,20 +27,24 @@ class ClientController {
   private static readonly EOF = null // routes begin after line
 
   /* Hare are all the routes */
-  // private static readonly getRoles = async (path = this.getPath('/roles')) => {
-  //   this.router.get(
-  //     path,
-  //     catchAsync(async (_req: Request, res: Response) => {
+  private static readonly create = async (path = this.getPath('/')) => {
+    this.router.post(
+      path,
+      requireAuth(),
+      catchAsync(async (req: ReqWithUser, res: Response) => {
+        const { id } = req.locals.user
+        const body = createClientDto.parse(req.body)
 
-  //       const r = response()
-  //         .success(200)
-  //         // .data(roles)
-  //         .message('Here are all the roles.')
-  //         .exec()
-  //       res.status(r.code).json(r)
-  //     })
-  //   )
-  // }
+        const client = await this.clientService.createClient(id, body)
+
+        const r = response()
+          .success(201)
+          .data(client)
+          .exec()
+        res.status(r.code).json(r)
+      })
+    )
+  }
 }
 
 export default ClientController.clientModule as Router
