@@ -20,24 +20,36 @@ describe('client', async () => {
     company: 'ashik',
     notes: 'ashik',
   }
+
   it('should be able to create own client', async () => {
     const user = await request(app).post('/auth/signup').send(cred)
-
     const [accessToken] = user.headers['set-cookie']
 
-     await request(app)
-      .post('/clients')
-      .set('Cookie', accessToken)
-      .send(data)
     const res = await request(app)
       .post('/clients')
       .set('Cookie', accessToken)
       .send(data)
-    // expect(res.body.success).toBe(true)
-    // expect(res.body.code).toBe(201)
-    // expect(res.body.message).toMatch(/created/gi)
-    console.log(res.body)
+
+    expect(res.body.success).toBe(true)
+    expect(res.body.code).toBe(201)
+    expect(res.body.data).toBeDefined()
   })
+
+  it('should allow to create duplicate client', async () => {
+    const user = await request(app).post('/auth/signup').send(cred)
+    const [accessToken] = user.headers['set-cookie']
+    await request(app).post('/clients').set('Cookie', accessToken).send(data)
+
+    const res = await request(app)
+      .post('/clients')
+      .set('Cookie', accessToken)
+      .send(data)
+
+    expect(res.body.success).toBe(false)
+    expect(res.body.code).toBe(409)
+    expect(res.body.data).not.toBeDefined()
+  })
+
   it.todo('should be able to update own client', async () => {})
   it.todo('should be able to delete own client', async () => {})
   it.todo('should be able to view own client', async () => {})
