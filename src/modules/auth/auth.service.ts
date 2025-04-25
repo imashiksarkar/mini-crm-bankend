@@ -1,7 +1,7 @@
 import { db } from '@src/config'
 import { jwt, response, validatedEnv } from '@src/lib'
 import { eq } from 'drizzle-orm'
-import { SignupUserDto } from './auth.dtos'
+import { SigninUserDto, SignupUserDto } from './auth.dtos'
 import { tokensTable, usersTable } from './db/schema'
 
 export default class AuthService {
@@ -43,6 +43,45 @@ export default class AuthService {
 
     return {
       ...user,
+      token: {
+        accessToken,
+        refreshToken,
+      },
+    }
+  }
+
+  static readonly signin = async (userAttr: SigninUserDto) => {
+    const [existingUser = null] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.email, userAttr.email))
+
+    if (!existingUser)
+      throw response().error(404).message('User not found').exec()
+
+    const { id, name, email, role } = existingUser
+    const accessToken = await jwt.createAccessToken({
+      id,
+      name,
+      email,
+      role,
+    })
+
+    const refreshToken = await jwt.createRefreshToken({
+      id,
+    })
+
+    // save refresh token to db
+    await db.insert(tokensTable).values([
+      {
+        userId: id,
+        token: refreshToken,
+        expiresAt: new Date(validatedEnv.REF_TOKEN_EXP),
+      },
+    ])
+
+    return {
+      ...existingUser,
       token: {
         accessToken,
         refreshToken,

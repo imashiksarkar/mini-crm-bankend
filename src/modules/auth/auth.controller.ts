@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express'
-import { signupUserDto } from './auth.dtos'
+import { signinUserDto, signupUserDto } from './auth.dtos'
 import AuthService from './auth.service'
 import { catchAsync, response, validatedEnv } from '@src/lib'
 
@@ -52,10 +52,26 @@ class AuthController {
   }
 
   private static readonly signin = async (path = this.getPath('/signin')) => {
-    this.router.get(
+    this.router.post(
       path,
-      catchAsync(async (_req: Request, res: Response) => {
-        res.send('Hello World!')
+      catchAsync(async (req: Request, res: Response) => {
+        const body = await signinUserDto.parseAsync(req.body)
+        const signedInUser = await this.authService.signin(body)
+
+        const { token } = signedInUser
+        res.cookie('accessToken', token.accessToken, {
+          httpOnly: true,
+          secure: validatedEnv.IS_PRODUCTION,
+          sameSite: 'lax',
+        })
+        res.cookie('refreshToken', token.refreshToken, {
+          httpOnly: true,
+          secure: validatedEnv.IS_PRODUCTION,
+          sameSite: 'lax',
+        })
+
+        const r = response().success(200).data(signedInUser).exec()
+        res.status(r.code).json(r)
       })
     )
   }

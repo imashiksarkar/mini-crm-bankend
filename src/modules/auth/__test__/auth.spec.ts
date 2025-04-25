@@ -14,39 +14,29 @@ describe('auth', () => {
   }
 
   it('validate signup user dto', async () => {
-    try {
-      const data = await signupUserDto.parseAsync(cred)
+    const data = await signupUserDto.parseAsync(cred)
 
-      expect(data).toBeDefined()
-    } catch (error) {
-      if (error instanceof ZodError)
-        console.log((error as ZodError).flatten().fieldErrors)
-      console.log(error)
-    }
+    expect(data).toBeDefined()
   })
 
   it('verifies the password', async () => {
-    try {
-      const data = await signupUserDto.parseAsync(cred)
+    const data = await signupUserDto.parseAsync(cred)
 
-      expect(await Hashing.verify(cred.password, data.password)).toBe(true)
-    } catch (error) {
-      if (error instanceof ZodError)
-        console.log((error as ZodError).flatten().fieldErrors)
-
-      console.log(error)
-    }
+    expect(await Hashing.verify(cred.password, data.password)).toBe(true)
   })
 
-  it.only('should be able to signup', async () => {
-    try {
-      // await request(app).post('/auth/signup').send(cred)
-      const res = await request(app).post('/auth/signup').send(cred)
-      console.log('-----', res.body)
-      // console.log('-----', res.headers['set-cookie'])
-      // console.log('-----', (res.error as any).text)
-    } catch (error) {
-      console.log(error)
-    }
+  it('should be able to signup', async () => {
+    const res = await request(app).post('/auth/signup').send(cred)
+
+    expect(res.body.data.email).toBe(cred.email)
+    expect(res.headers['set-cookie']).toHaveLength(2)
+  })
+
+  it('should be able to signin', async () => {
+    await request(app).post('/auth/signup').send(cred).expect(201)
+    const res = await request(app).post('/auth/signin').send(cred).expect(200)
+
+    expect(res.headers['set-cookie']).toHaveLength(2)
+    expect(res.body.data.email).toBe(cred.email)
   })
 })
