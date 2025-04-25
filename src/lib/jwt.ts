@@ -35,6 +35,13 @@ export default class JWT {
 
   static decodeToken = async (token: string) => {
     const decoded = await jwt.verify(token, validatedEnv.JWT_SECRET)
-    return decoded
+    return decoded as {
+      email: string
+      exp: number
+      iat: number
+      name: string
+      role: string[]
+      sub: string
+    }
   }
 }

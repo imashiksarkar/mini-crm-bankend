@@ -2,6 +2,7 @@ import { catchAsync, response, validatedEnv } from '@src/lib'
 import { Request, Response, Router } from 'express'
 import { changeUserRoleDto, signinUserDto, signupUserDto } from './auth.dtos'
 import AuthService from './auth.service'
+import { requireRole, requireAuth } from '@src/middlewares'
 
 class AuthController {
   private static readonly router = Router()
@@ -117,6 +118,8 @@ class AuthController {
   ) => {
     this.router.patch(
       path,
+      requireAuth(),
+      requireRole(['admin']),
       catchAsync(async (req: Request, res: Response) => {
         const body = await changeUserRoleDto.parseAsync(req.body)
 
@@ -125,7 +128,7 @@ class AuthController {
         const r = response()
           .success(200)
           .message('Role changed successfully')
-          .data(user!)
+          .data(user)
           .exec()
         res.status(r.code).json(r)
       })

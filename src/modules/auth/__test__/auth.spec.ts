@@ -56,17 +56,38 @@ describe('auth', () => {
   })
 
   it('should return all roles', async () => {
-    await request(app).get('/auth/roles').send(cred).expect(200)
+    const res = await request(app).get('/auth/roles').send(cred).expect(200)
+    console.log('Here are all the allowed roles', res.body.data)
   })
 
   it('allows admin to change the user role', async () => {
-    await request(app).post('/auth/signup').send(cred).expect(201)
+    cred.role = ['admin']
+    const user = await request(app).post('/auth/signup').send(cred).expect(201)
 
-    cred.role = ['user', 'admina']
-    const res = await request(app).patch('/auth/roles').send(cred)
+    const [accessToken] = user.headers['set-cookie']
 
-    console.log(res.body)
+    cred.role = ['admin', 'user']
+    const res = await request(app)
+      .patch('/auth/roles')
+      .set('Cookie', accessToken)
+      .send(cred)
+
+    expect(res.body.success).toBe(true)
   })
 
-  it.todo('disallows user to change the user role', async () => {})
+  it('disallows user to change the user role', async () => {
+    cred.role = ['user']
+    const user = await request(app).post('/auth/signup').send(cred).expect(201)
+
+    const [accessToken] = user.headers['set-cookie']
+
+    cred.role = ['admin', 'user']
+    const res = await request(app)
+      .patch('/auth/roles')
+      .set('Cookie', accessToken)
+      .send(cred)
+
+    expect(res.body.success).toBe(false)
+    expect(res.body.error.message[0]).toMatch(/not allowed/gi)
+  })
 })

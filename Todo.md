@@ -4,7 +4,8 @@
 
 - [x] user signup
 - [x] user signin
-- [ ] user signout
+- [x] user signout
+- [ ] refresh token
 - [ ] change user role
 
 ## Roles
