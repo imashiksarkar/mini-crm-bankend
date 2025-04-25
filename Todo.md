@@ -6,8 +6,5 @@
 - [x] user signin
 - [x] user signout
 - [x] change user role
-- [ ] refresh token
-
-## Roles
-
+- [x] refresh token
 - [x] fetch allowed roles
