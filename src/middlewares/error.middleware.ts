@@ -1,6 +1,11 @@
 import response, { Res } from '@src/lib/response'
 import { DrizzleError } from 'drizzle-orm'
 import { Request, ErrorRequestHandler, NextFunction, Response } from 'express'
+import {
+  JsonWebTokenError,
+  TokenExpiredError,
+  NotBeforeError,
+} from 'jsonwebtoken'
 
 const errorHandler =
   () =>
@@ -10,20 +15,19 @@ const errorHandler =
     res: Response,
     _next: NextFunction
   ) => {
-    if (err instanceof Res) {
-      res.status(err.code).json(err)
-      return
-    } else if (err instanceof DrizzleError) {
-      const e = response().error(500).message(err.message).exec()
-      res.status(e.code).json(e)
-      return
-    } else if (err instanceof Error) {
-      const e = response().error(500).message(err.message).exec()
-      res.status(e.code).json(e)
-      return
+    let e = response().error(500).message('Something went wrong').exec()
+
+    if (err instanceof Res) e = err
+    else if (err instanceof DrizzleError || err instanceof Error)
+      e = response().error(500).message(err.message).exec()
+    else if (
+      err instanceof TokenExpiredError ||
+      err instanceof NotBeforeError ||
+      err instanceof JsonWebTokenError
+    ) {
+      e = response().error(401).message(err.message).exec()
     }
 
-    const e = response().error(500).message('Something went wrong').exec()
     res.status(e.code).json(e)
   }
 

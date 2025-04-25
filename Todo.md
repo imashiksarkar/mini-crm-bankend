@@ -5,9 +5,9 @@
 - [x] user signup
 - [x] user signin
 - [x] user signout
+- [x] change user role
 - [ ] refresh token
-- [ ] change user role
 
 ## Roles
 
-- [ ] fetch allowed roles
+- [x] fetch allowed roles
