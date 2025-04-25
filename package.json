@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch ./src/server.ts",
     "build": "rm -rf ./dist && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "test": "vitest",
+    "test": "vitest --ui",
     "test:run": "vitest --run",
     "compose:up": "docker compose --env-file ./.env.test up -d",
     "compose:down": "docker compose down",
@@ -41,6 +41,7 @@
     "@types/node": "^22.14.1",
     "@types/pg": "^8.11.13",
     "@types/supertest": "^6.0.3",
+    "@vitest/ui": "3.1.2",
     "dotenv": "^16.5.0",
     "drizzle-kit": "^0.31.0",
     "drizzle-zod": "^0.7.1",
