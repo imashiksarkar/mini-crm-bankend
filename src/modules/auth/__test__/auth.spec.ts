@@ -66,13 +66,11 @@ describe('auth', () => {
 
     const [accessToken] = user.headers['set-cookie']
 
-    cred.role = []
+    cred.role = ['admin', 'user']
     const res = await request(app)
       .patch('/auth/roles')
       .set('Cookie', accessToken)
       .send(cred)
-
-    console.log(res.body)
 
     expect(res.body.success).toBe(true)
   })
@@ -91,5 +89,21 @@ describe('auth', () => {
 
     expect(res.body.success).toBe(false)
     expect(res.body.error.message[0]).toMatch(/not allowed/gi)
+  })
+
+  it('should not allow empty role', async () => {
+    cred.role = ['admin']
+    const user = await request(app).post('/auth/signup').send(cred).expect(201)
+
+    const [accessToken] = user.headers['set-cookie']
+
+    cred.role = []
+    const res = await request(app)
+      .patch('/auth/roles')
+      .set('Cookie', accessToken)
+      .send(cred)
+
+    expect(res.body.success).toBe(false)
+    expect(res.body.error.message[0]).toMatch(/required/gi)
   })
 })
