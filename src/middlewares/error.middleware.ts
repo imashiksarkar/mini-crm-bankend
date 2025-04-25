@@ -6,6 +6,7 @@ import {
   TokenExpiredError,
   NotBeforeError,
 } from 'jsonwebtoken'
+import { ZodError } from 'zod'
 
 const errorHandler =
   () =>
@@ -18,15 +19,18 @@ const errorHandler =
     let e = response().error(500).message('Something went wrong').exec()
 
     if (err instanceof Res) e = err
-    else if (err instanceof DrizzleError || err instanceof Error)
+    else if (err instanceof DrizzleError)
       e = response().error(500).message(err.message).exec()
     else if (
       err instanceof TokenExpiredError ||
       err instanceof NotBeforeError ||
       err instanceof JsonWebTokenError
-    ) {
+    )
       e = response().error(401).message(err.message).exec()
-    }
+    else if (err instanceof ZodError)
+      e = response().error(400).message(err.errors[0].message).exec()
+    else if (err instanceof Error)
+      e = response().error(500).message(err.message).exec()
 
     res.status(e.code).json(e)
   }

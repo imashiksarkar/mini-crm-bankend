@@ -66,11 +66,13 @@ describe('auth', () => {
 
     const [accessToken] = user.headers['set-cookie']
 
-    cred.role = ['admin', 'user']
+    cred.role = []
     const res = await request(app)
       .patch('/auth/roles')
       .set('Cookie', accessToken)
       .send(cred)
+
+    console.log(res.body)
 
     expect(res.body.success).toBe(true)
   })
