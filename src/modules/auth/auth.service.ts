@@ -1,7 +1,7 @@
 import { db } from '@src/config'
 import { jwt, response, validatedEnv } from '@src/lib'
 import { eq } from 'drizzle-orm'
-import { SigninUserDto, SignupUserDto } from './auth.dtos'
+import { ChangeUserRoleDto, SigninUserDto, SignupUserDto } from './auth.dtos'
 import { tokensTable, userRoleEnum, usersTable } from './db/schema'
 
 export default class AuthService {
@@ -96,4 +96,19 @@ export default class AuthService {
   }
 
   static readonly getRoles = async () => userRoleEnum.enumValues
+
+  static readonly changeRole = async (userAttr: ChangeUserRoleDto) => {
+    const [newUser] = await db
+      .update(usersTable)
+      .set({ role: userAttr.role })
+      .where(eq(usersTable.email, userAttr.email))
+      .returning({
+        id: usersTable.id,
+        name: usersTable.name,
+        email: usersTable.email,
+        role: usersTable.role,
+      })
+
+    return newUser
+  }
 }

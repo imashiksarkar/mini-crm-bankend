@@ -1,9 +1,8 @@
+import app from '@src/app'
+import { Hashing } from '@src/lib'
+import request from 'supertest'
 import { describe, expect, it } from 'vitest'
 import { signupUserDto } from '../auth.dtos'
-import { ZodError } from 'zod'
-import { Hashing } from '@src/lib'
-import app from '@src/app'
-import request from 'supertest'
 
 describe('auth', () => {
   const cred = {
@@ -57,14 +56,17 @@ describe('auth', () => {
   })
 
   it('should return all roles', async () => {
-    const user = await request(app).get('/auth/roles').send(cred).expect(200)
-
-    console.log(user.body)
+    await request(app).get('/auth/roles').send(cred).expect(200)
   })
 
-  it.todo('admin can change user role', async () => {})
+  it('allows admin to change the user role', async () => {
+    await request(app).post('/auth/signup').send(cred).expect(201)
 
-  it.todo('allows admin to change the user role', async () => {})
+    cred.role = ['user', 'admina']
+    const res = await request(app).patch('/auth/roles').send(cred)
+
+    console.log(res.body)
+  })
 
   it.todo('disallows user to change the user role', async () => {})
 })

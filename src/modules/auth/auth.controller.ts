@@ -1,8 +1,7 @@
 import { catchAsync, response, validatedEnv } from '@src/lib'
 import { Request, Response, Router } from 'express'
-import { signinUserDto, signupUserDto } from './auth.dtos'
+import { changeUserRoleDto, signinUserDto, signupUserDto } from './auth.dtos'
 import AuthService from './auth.service'
-import { userRoleEnum } from './db/schema'
 
 class AuthController {
   private static readonly router = Router()
@@ -29,7 +28,7 @@ class AuthController {
   private static readonly getRoles = async (path = this.getPath('/roles')) => {
     this.router.get(
       path,
-      catchAsync(async (req: Request, res: Response) => {
+      catchAsync(async (_req: Request, res: Response) => {
         const roles = await this.authService.getRoles()
 
         const r = response()
@@ -107,6 +106,26 @@ class AuthController {
         const r = response()
           .success(200)
           .message('Signed out successfully')
+          .exec()
+        res.status(r.code).json(r)
+      })
+    )
+  }
+
+  private static readonly changeRole = async (
+    path = this.getPath('/roles')
+  ) => {
+    this.router.patch(
+      path,
+      catchAsync(async (req: Request, res: Response) => {
+        const body = await changeUserRoleDto.parseAsync(req.body)
+
+        const user = await this.authService.changeRole(body)
+
+        const r = response()
+          .success(200)
+          .message('Role changed successfully')
+          .data(user!)
           .exec()
         res.status(r.code).json(r)
       })

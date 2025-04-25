@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { Hashing } from '@src/lib'
+import { userRoleEnum } from './db/schema'
 
 export const signupUserDto = z.object({
   name: z.string(),
@@ -19,7 +20,7 @@ export const signupUserDto = z.object({
       }
     )
     .transform(async (arg) => await Hashing.hash(arg)),
-  role: z.array(z.enum(['user', 'admin']).default('user')),
+  role: z.array(z.enum(userRoleEnum.enumValues).default('user')),
 })
 
 export const signinUserDto = z.object({
@@ -41,5 +42,11 @@ export const signinUserDto = z.object({
     .transform(async (arg) => await Hashing.hash(arg)),
 })
 
+export const changeUserRoleDto = z.object({
+  email: z.string().email(),
+  role: z.array(z.enum(userRoleEnum.enumValues).default('user')),
+})
+
 export type SignupUserDto = z.infer<typeof signupUserDto>
 export type SigninUserDto = z.infer<typeof signinUserDto>
+export type ChangeUserRoleDto = z.infer<typeof changeUserRoleDto>
