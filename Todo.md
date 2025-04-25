@@ -2,8 +2,8 @@
 
 ## Auth
 
-- [ ] user signup
-- [ ] user signin
+- [x] user signup
+- [x] user signin
 - [ ] user signout
 - [ ] change user role
 

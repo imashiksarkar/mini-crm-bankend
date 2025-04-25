@@ -88,4 +88,10 @@ export default class AuthService {
       },
     }
   }
+
+  static readonly signout = async (userAttr: { refreshToken: string }) => {
+    await db
+      .delete(tokensTable)
+      .where(eq(tokensTable.token, userAttr.refreshToken))
+  }
 }

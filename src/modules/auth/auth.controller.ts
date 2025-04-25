@@ -1,7 +1,7 @@
+import { catchAsync, response, validatedEnv } from '@src/lib'
 import { Request, Response, Router } from 'express'
 import { signinUserDto, signupUserDto } from './auth.dtos'
 import AuthService from './auth.service'
-import { catchAsync, response, validatedEnv } from '@src/lib'
 
 class AuthController {
   private static readonly router = Router()
@@ -77,10 +77,21 @@ class AuthController {
   }
 
   private static readonly signout = async (path = this.getPath('/signout')) => {
-    this.router.get(
+    this.router.delete(
       path,
-      catchAsync(async (_req: Request, res: Response) => {
-        res.send('Hello World!')
+      catchAsync(async (req: Request, res: Response) => {
+        const refreshToken: string | undefined = req.cookies['refreshToken']
+
+        if (refreshToken) await this.authService.signout({ refreshToken })
+
+        res.clearCookie('accessToken')
+        res.clearCookie('refreshToken')
+
+        const r = response()
+          .success(200)
+          .message('Signed out successfully')
+          .exec()
+        res.status(r.code).json(r)
       })
     )
   }

@@ -39,4 +39,26 @@ describe('auth', () => {
     expect(res.headers['set-cookie']).toHaveLength(2)
     expect(res.body.data.email).toBe(cred.email)
   })
+
+  it('should be able to signout', async () => {
+    const user = await request(app).post('/auth/signup').send(cred).expect(201)
+    const [accessToken, refreshToken] = user.headers['set-cookie']
+
+    const res = await request(app)
+      .delete('/auth/signout')
+      .set('Cookie', refreshToken)
+      .send(cred)
+      .expect(200)
+
+    expect(res.headers['set-cookie']).toEqual([
+      'accessToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT',
+      'refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT',
+    ])
+  })
+
+  it.todo('admin can change user role', async () => {})
+
+  it.todo('allows admin to change the user role', async () => {})
+
+  it.todo('disallows user to change the user role', async () => {})
 })
