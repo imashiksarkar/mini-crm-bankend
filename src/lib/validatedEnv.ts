@@ -1,21 +1,15 @@
-import z from 'zod'
 import { config } from 'dotenv'
-
-const env = z
-  .object({
-    ENV: z
-      .enum(['development', 'test', 'production', 'dev', 'prod'])
-      .default('test'),
-  })
-  .parse(process.env)
+import z from 'zod'
 
 config({
-  path: `./.env.${env.ENV === 'test' ? 'test' : 'local'}`,
+  path: './.env.local',
 })
 
 const validatedEnv = z
   .object({
-    ENV: z.enum(['development', 'test', 'production', 'dev', 'prod']),
+    ENV: z
+      .enum(['development', 'test', 'production', 'dev', 'prod'])
+      .default('test'),
     PORT: z.coerce.number().default(3000),
     JWT_SECRET: z.string().trim().min(2),
     DB_URL: z.string().trim().min(2),
@@ -25,6 +19,8 @@ const validatedEnv = z
   .transform((oldEnvs) => ({
     ...oldEnvs,
     IS_PRODUCTION: oldEnvs.ENV === 'production' || oldEnvs.ENV === 'prod',
+    IS_DEVELOPMENT: oldEnvs.ENV === 'development' || oldEnvs.ENV === 'dev',
+    IS_TEST: oldEnvs.ENV === 'test',
   }))
 
 export default validatedEnv.parse(process.env)

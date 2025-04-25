@@ -1,13 +1,12 @@
-import { config } from 'dotenv'
 import { beforeEach } from 'vitest'
-import { db } from '@src/config'
+import { DB } from '@src/config'
 import { tokensTable, usersTable } from '@src/modules/auth/db/schema'
+import { validatedEnv } from '@src/lib'
 
-config({
-  path: './.env.test',
-})
+process.env.ENV = 'test'
+DB.connect(validatedEnv.DB_URL) // connect to test database
 
 beforeEach(async () => {
-  await db.delete(tokensTable)
-  await db.delete(usersTable)
+  await DB.$.delete(tokensTable)
+  await DB.$.delete(usersTable)
 })

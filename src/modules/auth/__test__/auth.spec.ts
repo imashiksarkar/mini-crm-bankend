@@ -1,10 +1,12 @@
-import app from '@src/app'
+import appPromisse from '@src/app'
 import { Hashing } from '@src/lib'
 import request from 'supertest'
 import { describe, expect, it } from 'vitest'
 import { signupUserDto } from '../auth.dtos'
 
-describe('auth', () => {
+describe('auth', async () => {
+  const app = await appPromisse
+
   const cred = {
     name: 'Ashik S',
     email: 'ashik@gmail.com',

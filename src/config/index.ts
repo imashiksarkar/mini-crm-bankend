@@ -1,1 +1,1 @@
-export { default as db } from '@config/db'
+export { default as DB } from '@config/db'
