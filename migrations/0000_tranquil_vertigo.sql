@@ -37,5 +37,4 @@ ALTER TABLE "clients" ADD CONSTRAINT "clients_user_id_users_id_fk" FOREIGN KEY (
 CREATE INDEX "token_idx" ON "tokens" USING btree ("token");--> statement-breakpoint
 CREATE INDEX "user_id_idx" ON "tokens" USING btree ("user_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "email_idx" ON "users" USING btree ("email");--> statement-breakpoint
-CREATE INDEX "client_name_idx" ON "clients" USING btree ("name");--> statement-breakpoint
-CREATE INDEX "client_email_idx" ON "clients" USING btree ("email");
+CREATE INDEX "client_text_search_idx" ON "clients" USING btree ("name","email");

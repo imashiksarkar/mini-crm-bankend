@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express'
 import ClientService from './client.service'
 import { catchAsync, response } from '@src/lib'
-import { createClientDto } from './client.dtos'
+import { createClientDto, updateUserDto } from './client.dtos'
 import { requireAuth } from '@src/middlewares'
 import { ReqWithUser } from '@src/middlewares/requireAuth.middleware'
 
@@ -37,10 +37,36 @@ class ClientController {
 
         const client = await this.clientService.createClient(id, body)
 
-        const r = response()
-          .success(201)
-          .data(client)
-          .exec()
+        const r = response().success(201).data(client).exec()
+        res.status(r.code).json(r)
+      })
+    )
+  }
+
+  private static readonly update = async (
+    path = this.getPath('/:clientId')
+  ) => {
+    this.router.put(
+      path,
+      requireAuth(),
+      catchAsync(async (req: ReqWithUser, res: Response) => {
+        const { id } = req.locals.user
+        const params = req.params as {
+          clientId?: string
+        }
+
+        if (!params.clientId)
+          throw response().error(400).message('client id is required').exec()
+
+        const body = updateUserDto.parse(req.body)
+
+        const updatedClient = await this.clientService.updateClient(
+          params.clientId,
+          id,
+          body
+        )
+
+        const r = response().success(200).data(updatedClient).exec()
         res.status(r.code).json(r)
       })
     )

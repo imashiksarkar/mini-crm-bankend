@@ -10,4 +10,7 @@ export const createClientDto = z.object({
   notes: z.string().trim().min(2).optional(),
 })
 
+export const updateUserDto = createClientDto
+
 export type CreateClientDto = z.infer<typeof createClientDto>
+export type UpdateClientDto = z.infer<typeof updateUserDto>

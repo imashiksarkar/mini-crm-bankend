@@ -1,5 +1,5 @@
 {
-  "id": "67be9149-235d-4b23-901c-ee39e592efd4",
+  "id": "a05e7fe6-203b-477d-975f-05dad45d7576",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -246,24 +246,15 @@
         }
       },
       "indexes": {
-        "client_name_idx": {
-          "name": "client_name_idx",
+        "client_text_search_idx": {
+          "name": "client_text_search_idx",
           "columns": [
             {
               "expression": "name",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "client_email_idx": {
-          "name": "client_email_idx",
-          "columns": [
+            },
             {
               "expression": "email",
               "isExpression": false,
