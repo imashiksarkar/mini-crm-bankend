@@ -1,2 +1,2 @@
-export * as authSchema from './schema'
-export * as authSeeds from './seeds'
+export * as clientSchema from './schema'
+export * as clientSeeds from './seeds'
