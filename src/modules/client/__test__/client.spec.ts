@@ -149,6 +149,21 @@ describe('client', async () => {
     expect(res.body.error.message.join(',')).toMatch(/not found/gi)
   })
 
-  it.todo('should be able to view own client', async () => {})
+  it('should be able to view own client', async () => {
+    const user = await request(app).post('/auth/signup').send(cred)
+    const [accessToken] = user.headers['set-cookie']
+    const createdClient = await request(app)
+      .post('/clients')
+      .set('Cookie', accessToken)
+      .send(data)
+    const clientId = createdClient.body.data.id
+
+    const res = await request(app)
+      .get(`/clients/${clientId}`)
+      .set('Cookie', accessToken)
+
+    expect(res.body.data).toEqual(createdClient.body.data)
+  })
+
   it.todo('should be able to list own clients', async () => {})
 })

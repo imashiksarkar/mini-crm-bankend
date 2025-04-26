@@ -101,6 +101,32 @@ class ClientController {
       })
     )
   }
+
+  private static readonly getClientDetails = async (
+    path = this.getPath('/:clientId')
+  ) => {
+    this.router.get(
+      path,
+      requireAuth(),
+      catchAsync(async (req: ReqWithUser, res: Response) => {
+        const { id } = req.locals.user
+        const params = req.params as {
+          clientId?: string
+        }
+
+        if (!params.clientId)
+          throw response().error(400).message('client id is required').exec()
+
+        const updatedClient = await this.clientService.getClientDetails(
+          params.clientId,
+          id
+        )
+
+        const r = response().success(200).data(updatedClient).exec()
+        res.status(r.code).json(r)
+      })
+    )
+  }
 }
 
 export default ClientController.clientModule as Router
