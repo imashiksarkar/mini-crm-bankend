@@ -21,7 +21,7 @@
 
 - [x] create own project for client
 - [x] update own project
-- [ ] delete own project
+- [x] delete own project
 - [ ] view own projects by user
 - [ ] view own projects by client
 - [ ] view own project details
