@@ -20,7 +20,11 @@ export default class ProjectService {
         )
       )
 
-    if (!client) throw response().error(404).message('Client not found').exec()
+    if (!client)
+      throw response()
+        .error(401)
+        .message('Unauthorized to create project')
+        .exec()
 
     const [project = undefined] = await DB.$.insert(projectsTable)
       .values([

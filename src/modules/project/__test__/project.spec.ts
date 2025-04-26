@@ -46,4 +46,34 @@ describe('client', async () => {
 
     console.log(res.body)
   })
+
+  it('should not be able to create project for other client', async () => {
+    // create user
+    const user1 = await request(app).post('/auth/signup').send(cred)
+    const [user1AccessToken] = user1.headers['set-cookie']
+
+    cred.email = 'ashik2@gmail.com'
+    const user2 = await request(app).post('/auth/signup').send(cred)
+    const [user2AccessToken] = user2.headers['set-cookie']
+
+    // create client for user1
+    const user1CreatedClient = await request(app)
+      .post('/clients')
+      .set('Cookie', user1AccessToken)
+      .send({
+        email: 'ashik@gmail.com',
+        name: 'ashik',
+        phone: '01234567890',
+      } satisfies CreateClientDto)
+
+    data.clientId = user1CreatedClient.body.data.id
+
+    // create project for client of user1 with user2 access token
+    const res = await request(app)
+      .post('/projects')
+      .set('Cookie', user2AccessToken)
+      .send(data)
+
+    expect(res.body.code).toBe(401)
+  })
 })
