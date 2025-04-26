@@ -11,8 +11,8 @@
 
 ## Client
 
-- [ ] create own client
-- [ ] update own client
-- [ ] delete own client
-- [ ] view own clients
-- [ ] view own client
+- [x] create own client
+- [x] update own client
+- [x] delete own client
+- [x] view own clients
+- [x] view own client
