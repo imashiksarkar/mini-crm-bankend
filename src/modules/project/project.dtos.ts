@@ -11,4 +11,7 @@ export const createProjectDto = z.object({
   status: z.enum(projectStatusEnum.enumValues).default('idle').optional(),
 })
 
+export const updateProjectDto = createProjectDto.omit({ clientId: true })
+
 export type CreateProjectDto = z.infer<typeof createProjectDto>
+export type UpdateProjectDto = z.infer<typeof updateProjectDto>

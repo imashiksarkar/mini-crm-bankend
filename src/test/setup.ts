@@ -1,10 +1,9 @@
-import { beforeEach } from 'vitest'
 import { DB } from '@src/config'
-import { tokensTable, usersTable } from '@src/modules/auth/db/schema'
 import { validatedEnv } from '@src/lib'
+import { tokensTable, usersTable } from '@src/modules/auth/db/schema'
 import { clientsTable } from '@src/modules/client/db/schema'
+import { beforeEach } from 'vitest'
 
-process.env.ENV = 'test'
 DB.connect(validatedEnv.DB_URL) // connect to test database
 
 beforeEach(async () => {

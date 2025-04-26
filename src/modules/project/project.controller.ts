@@ -42,6 +42,34 @@ class ProjectController {
       })
     )
   }
+
+  private static readonly update = async (
+    path = this.getPath('/:projectId')
+  ) => {
+    this.router.patch(
+      path,
+      requireAuth(),
+      catchAsync(async (req: ReqWithUser, res: Response) => {
+        const params = req.params as {
+          projectId: string
+        }
+
+        const { id } = req.locals.user
+        const body = createProjectDto.parse(req.body)
+
+        const updatedProject = await this.projectService.updateProject(
+          params.projectId,
+          id,
+          body
+        )
+
+        
+
+        const r = response().success(200).data(updatedProject).exec()
+        res.status(r.code).json(r)
+      })
+    )
+  }
 }
 
 export default ProjectController.projectModule as Router

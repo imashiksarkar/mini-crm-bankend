@@ -19,9 +19,9 @@
 
 ## Project
 
-- [ ] create own project for client
-- [ ] update own project
+- [x] create own project for client
+- [x] update own project
 - [ ] delete own project
-- [ ] view own projects
-- [ ] view own project
-- [ ] change project status
+- [ ] view own projects by user
+- [ ] view own projects by client
+- [ ] view own project details

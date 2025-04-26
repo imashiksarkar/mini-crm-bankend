@@ -1,4 +1,5 @@
 import { usersTable } from '@src/modules/auth/db/schema'
+import { projectsTable } from '@src/modules/project/db/schema'
 import { relations } from 'drizzle-orm'
 import { index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
 import { createSelectSchema } from 'drizzle-zod'
@@ -27,11 +28,12 @@ export const clientsTable = pgTable(
   ]
 )
 
-export const clientsRelations = relations(clientsTable, ({ one }) => ({
+export const clientsRelations = relations(clientsTable, ({ one, many }) => ({
   user: one(usersTable, {
     fields: [clientsTable.userId],
     references: [usersTable.id],
   }),
+  projects: many(projectsTable)
 }))
 
 export const clientSchema = createSelectSchema(clientsTable)

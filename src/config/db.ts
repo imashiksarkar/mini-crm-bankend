@@ -25,7 +25,7 @@ export default class DB {
       await client.query('SELECT 1')
 
       const db = drizzle(client, {
-        logger: !validatedEnv.IS_PRODUCTION,
+        logger: validatedEnv.IS_DEVELOPMENT,
       })
 
       ;(db as DbType).$client = client

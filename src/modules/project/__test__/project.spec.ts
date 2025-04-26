@@ -44,7 +44,7 @@ describe('client', async () => {
       .set('Cookie', accessToken)
       .send(data)
 
-    console.log(res.body)
+    expect(res.body.data).toBeDefined()
   })
 
   it('should not be able to create project for other client', async () => {
@@ -75,5 +75,77 @@ describe('client', async () => {
       .send(data)
 
     expect(res.body.code).toBe(401)
+  })
+
+  it('should be able to update own project', async () => {
+    // create user
+    const user = await request(app).post('/auth/signup').send(cred)
+    const [accessToken] = user.headers['set-cookie']
+
+    const client = await request(app)
+      .post('/clients')
+      .set('Cookie', accessToken)
+      .send({
+        email: 'ashik@gmail.com',
+        name: 'ashik',
+        phone: '01234567890',
+      } satisfies CreateClientDto)
+      .expect(201)
+
+    data.clientId = client.body.data.id
+
+    const project = await request(app)
+      .post('/projects')
+      .set('Cookie', accessToken)
+      .send(data)
+    const projectId = project.body.data.id as string
+
+    data.status = 'in-progress'
+    const updatedProject = await request(app)
+      .patch(`/projects/${projectId}`)
+      .set('Cookie', accessToken)
+      .send(data)
+
+    expect(updatedProject.body.success).toBe(true)
+    expect(updatedProject.body.data).toBeDefined()
+  })
+
+  it("should not be able to update others' project", async () => {
+    // create user
+    const user = await request(app).post('/auth/signup').send(cred)
+    const [accessToken] = user.headers['set-cookie']
+
+    cred.email = 'ashik2@gmail.com'
+    const user2 = await request(app).post('/auth/signup').send(cred)
+    const [accessToken2] = user2.headers['set-cookie']
+
+    const client = await request(app)
+      .post('/clients')
+      .set('Cookie', accessToken)
+      .send({
+        email: 'ashik@gmail.com',
+        name: 'ashik',
+        phone: '01234567890',
+      } satisfies CreateClientDto)
+      .expect(201)
+
+    data.clientId = client.body.data.id
+
+    const project = await request(app)
+      .post('/projects')
+      .set('Cookie', accessToken)
+      .send(data)
+    const projectId = project.body.data.id as string
+
+    data.status = 'in-progress'
+    const updatedProject = await request(app)
+      .patch(`/projects/${projectId}`)
+      .set('Cookie', accessToken2)
+      .send(data)
+
+    expect(updatedProject.body.success).toBe(false)
+    expect(updatedProject.body.error.message.join(',')).toMatch(
+      /unauthorized/gi
+    )
   })
 })
