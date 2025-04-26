@@ -108,7 +108,47 @@ describe('client', async () => {
     expect(res.body.error.message.join(',')).toMatch(/not found/gi)
   })
 
-  it.todo('should be able to delete own client', async () => {})
+  it('should be able to delete own client', async () => {
+    const user1 = await request(app).post('/auth/signup').send(cred)
+    const [accessToken] = user1.headers['set-cookie']
+    const client = await request(app)
+      .post('/clients')
+      .set('Cookie', accessToken)
+      .send(data)
+    const clientId = client.body.data.id
+
+    const res = await request(app)
+      .delete(`/clients/${clientId}`)
+      .set('Cookie', accessToken)
+
+    expect(res.body.success).toBe(true)
+    expect(res.body.code).toBe(200)
+    expect(res.body.message.join(',')).toMatch(/deleted/gi)
+  })
+
+  it('should not be able to delete a client from another user', async () => {
+    const user1 = await request(app).post('/auth/signup').send(cred)
+    const [accessToken] = user1.headers['set-cookie']
+    const client = await request(app)
+      .post('/clients')
+      .set('Cookie', accessToken)
+      .send(data)
+    const clientId = client.body.data.id
+
+    cred.email = 'ashik2@gmail.com'
+    cred.password = 'amlj5Ant@'
+    const user2 = await request(app).post('/auth/signup').send(cred)
+    const [accessToken2] = user2.headers['set-cookie']
+
+    const res = await request(app)
+      .delete(`/clients/${clientId}`)
+      .set('Cookie', accessToken2)
+
+    expect(res.body.success).toBe(false)
+    expect(res.body.code).toBe(404)
+    expect(res.body.error.message.join(',')).toMatch(/not found/gi)
+  })
+
   it.todo('should be able to view own client', async () => {})
   it.todo('should be able to list own clients', async () => {})
 })

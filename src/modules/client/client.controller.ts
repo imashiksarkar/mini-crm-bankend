@@ -71,6 +71,36 @@ class ClientController {
       })
     )
   }
+
+  private static readonly delete = async (
+    path = this.getPath('/:clientId')
+  ) => {
+    this.router.delete(
+      path,
+      requireAuth(),
+      catchAsync(async (req: ReqWithUser, res: Response) => {
+        const { id } = req.locals.user
+        const params = req.params as {
+          clientId?: string
+        }
+
+        if (!params.clientId)
+          throw response().error(400).message('client id is required').exec()
+
+        const updatedClient = await this.clientService.deleteClient(
+          params.clientId,
+          id
+        )
+
+        const r = response()
+          .success(200)
+          .data(updatedClient)
+          .message('Client deleted successfully.')
+          .exec()
+        res.status(r.code).json(r)
+      })
+    )
+  }
 }
 
 export default ClientController.clientModule as Router

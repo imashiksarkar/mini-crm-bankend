@@ -37,4 +37,16 @@ export default class AuthService {
 
     return client
   }
+
+  static readonly deleteClient = async (clientId: string, userId: string) => {
+    const [client = undefined] = await DB.$.delete(clientsTable)
+      .where(
+        and(eq(clientsTable.id, clientId), eq(clientsTable.userId, userId))
+      )
+      .returning()
+
+    if (!client) throw response().error(404).message('Client not found').exec()
+
+    return client
+  }
 }
