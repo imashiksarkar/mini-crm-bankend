@@ -127,6 +127,23 @@ class ClientController {
       })
     )
   }
+
+  private static readonly getAllClientsByUser = async (
+    path = this.getPath('/')
+  ) => {
+    this.router.get(
+      path,
+      requireAuth(),
+      catchAsync(async (req: ReqWithUser, res: Response) => {
+        const { id } = req.locals.user
+
+        const updatedClient = await this.clientService.getAllClientsByUser(id)
+
+        const r = response().success(200).data(updatedClient).exec()
+        res.status(r.code).json(r)
+      })
+    )
+  }
 }
 
 export default ClientController.clientModule as Router

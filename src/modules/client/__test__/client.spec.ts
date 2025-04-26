@@ -165,5 +165,20 @@ describe('client', async () => {
     expect(res.body.data).toEqual(createdClient.body.data)
   })
 
-  it.todo('should be able to list own clients', async () => {})
+  it('should be able to list own clients', async () => {
+    const user = await request(app).post('/auth/signup').send(cred)
+    const [accessToken] = user.headers['set-cookie']
+
+    await request(app).post('/clients').set('Cookie', accessToken).send(data)
+    data.email = 'ashik2@gmail.com'
+    await request(app).post('/clients').set('Cookie', accessToken).send(data)
+    data.email = 'ashik3@gmail.com'
+    await request(app).post('/clients').set('Cookie', accessToken).send(data)
+
+    const res = await request(app).get(`/clients`).set('Cookie', accessToken)
+
+    expect(res.body.success).toBe(true)
+    expect(res.body.code).toBe(200)
+    expect(res.body.data.length).toBe(3)
+  })
 })

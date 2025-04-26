@@ -64,4 +64,14 @@ export default class AuthService {
 
     return client
   }
+
+  static readonly getAllClientsByUser = async (userId: string) => {
+    const clients = await DB.$.select()
+      .from(clientsTable)
+      .where(eq(clientsTable.userId, userId))
+
+    if (!clients) throw response().error(404).message('Client not found').exec()
+
+    return clients
+  }
 }
