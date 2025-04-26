@@ -63,9 +63,30 @@ class ProjectController {
           body
         )
 
-        
-
         const r = response().success(200).data(updatedProject).exec()
+        res.status(r.code).json(r)
+      })
+    )
+  }
+
+  private static readonly delete = async (
+    path = this.getPath('/:projectId')
+  ) => {
+    this.router.delete(
+      path,
+      requireAuth(),
+      catchAsync(async (req: ReqWithUser, res: Response) => {
+        const params = req.params as {
+          projectId: string
+        }
+        const { id } = req.locals.user
+
+        const deletedProject = await this.projectService.deleteProject(
+          params.projectId,
+          id
+        )
+
+        const r = response().success(200).data(deletedProject).exec()
         res.status(r.code).json(r)
       })
     )

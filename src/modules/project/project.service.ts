@@ -63,7 +63,20 @@ export default class ProjectService {
       .returning()
 
     if (!project)
-      throw response().error(500).message('Failed to create project').exec()
+      throw response().error(404).message('Project not found').exec()
+
+    return project
+  }
+
+  static readonly deleteProject = async (projectId: string, userId: string) => {
+    const [project = undefined] = await DB.$.delete(projectsTable)
+      .where(
+        and(eq(projectsTable.id, projectId), eq(projectsTable.userId, userId))
+      )
+      .returning()
+
+    if (!project)
+      throw response().error(404).message('Project not found').exec()
 
     return project
   }

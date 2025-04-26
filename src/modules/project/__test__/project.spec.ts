@@ -111,11 +111,10 @@ describe('client', async () => {
   })
 
   it("should not be able to update others' project", async () => {
-    // create user
     const user = await request(app).post('/auth/signup').send(cred)
     const [accessToken] = user.headers['set-cookie']
 
-    cred.email = 'ashik2@gmail.com'
+    cred.email = 'ashik20@gmail.com'
     const user2 = await request(app).post('/auth/signup').send(cred)
     const [accessToken2] = user2.headers['set-cookie']
 
@@ -147,5 +146,71 @@ describe('client', async () => {
     expect(updatedProject.body.error.message.join(',')).toMatch(
       /unauthorized/gi
     )
+  })
+
+  it('should be able to delete own project', async () => {
+    const user = await request(app).post('/auth/signup').send(cred)
+    const [accessToken] = user.headers['set-cookie']
+
+    const client = await request(app)
+      .post('/clients')
+      .set('Cookie', accessToken)
+      .send({
+        email: 'ashik@gmail.com',
+        name: 'ashik',
+        phone: '01234567890',
+      } satisfies CreateClientDto)
+      .expect(201)
+
+    data.clientId = client.body.data.id
+
+    const project = await request(app)
+      .post('/projects')
+      .set('Cookie', accessToken)
+      .send(data)
+    const projectId = project.body.data.id as string
+
+    const deletedProject = await request(app)
+      .delete(`/projects/${projectId}`)
+      .set('Cookie', accessToken)
+      .send(data)
+
+    expect(deletedProject.body.success).toBe(true)
+    expect(deletedProject.body.data.id).toBe(projectId)
+  })
+
+  it("should not be able to delete others' project", async () => {
+    const user = await request(app).post('/auth/signup').send(cred)
+    const [accessToken] = user.headers['set-cookie']
+
+    cred.email = 'ashik4@gmail.com'
+    const user4 = await request(app).post('/auth/signup').send(cred)
+    const [accessToken4] = user4.headers['set-cookie']
+
+    const client = await request(app)
+      .post('/clients')
+      .set('Cookie', accessToken)
+      .send({
+        email: 'ashik@gmail.com',
+        name: 'ashik',
+        phone: '01234567890',
+      } satisfies CreateClientDto)
+      .expect(201)
+
+    data.clientId = client.body.data.id
+
+    const project = await request(app)
+      .post('/projects')
+      .set('Cookie', accessToken)
+      .send(data)
+    const projectId = project.body.data.id as string
+
+    const deletedProject = await request(app)
+      .delete(`/projects/${projectId}`)
+      .set('Cookie', accessToken4)
+      .send(data)
+
+    expect(deletedProject.body.success).toBe(false)
+    expect(deletedProject.body.error.message.join(',')).toMatch(/not found/gi)
   })
 })
