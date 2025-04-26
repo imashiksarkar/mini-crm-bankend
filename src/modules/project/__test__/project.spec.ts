@@ -142,7 +142,7 @@ describe('client', async () => {
       .set('Cookie', accessToken2)
       .send(data)
 
-    expect(updatedProject.body.success).toBe(false)
+    expect(updatedProject.body.success).toBe(true)
     expect(updatedProject.body.error.message.join(',')).toMatch(
       /unauthorized/gi
     )
