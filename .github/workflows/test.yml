@@ -2,7 +2,7 @@ name: Test CRM Api
 on:
   workflow_dispatch:
 jobs:
-  build-and-test:
+  test-api:
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -20,8 +20,12 @@ jobs:
           --health-retries 5
 
     env:
-      DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
+      DB_URL: postgres://postgres:postgres@localhost:5432/test_db
       ENV: test
+      PORT: 3000
+      JWT_SECRET: secret
+      ACC_TOKEN_EXP: 300000 # 5 minutes
+      REF_TOKEN_EXP: 86400000 # 1 day
 
     steps:
       - name: Checkout repository
