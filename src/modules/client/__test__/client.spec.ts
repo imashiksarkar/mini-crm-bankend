@@ -35,7 +35,7 @@ describe('client', async () => {
     expect(res.body.data).toBeDefined()
   })
 
-  it('should allow to create duplicate client', async () => {
+  it('should not allow to create duplicate client', async () => {
     const user = await request(app).post('/auth/signup').send(cred)
     const [accessToken] = user.headers['set-cookie']
     await request(app).post('/clients').set('Cookie', accessToken).send(data)
