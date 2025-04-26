@@ -1,7 +1,7 @@
 import { DB } from '@src/config'
 import { and, eq } from 'drizzle-orm'
 import { CreateClientDto, UpdateClientDto } from './project.dtos'
-import { clientsTable } from './db/schema'
+import { clientsTable } from '@modules/client/db/schema'
 import { response } from '@src/lib'
 
 export default class AuthService {
