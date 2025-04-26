@@ -127,6 +127,22 @@ describe('client', async () => {
   })
 
   it('should not be able to delete a client from another user', async () => {
+
+    const cred = {
+      name: 'Ashik S',
+      email: 'ashik@gmail.com',
+      password: 'A5shiklngya',
+      role: ['admin'],
+    }
+  
+    const data: CreateClientDto = {
+      name: 'Ashik S',
+      email: 'ashik@gmail.com',
+      phone: '01234567890',
+      company: 'ashik',
+      notes: 'ashik',
+    }
+
     const user1 = await request(app).post('/auth/signup').send(cred)
     const [accessToken] = user1.headers['set-cookie']
     const client = await request(app)
