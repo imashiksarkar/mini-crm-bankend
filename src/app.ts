@@ -2,6 +2,7 @@ import { validatedEnv } from '@src/lib'
 import { errorHandler, notFoundHandler } from '@middlewares/index'
 import authModule from '@modules/auth'
 import clientModule from '@modules/client'
+import projectModule from '@modules/project'
 import { getRelativeTime, response } from '@src/lib'
 import cookieParser from 'cookie-parser'
 import express, { Request, Response } from 'express'
@@ -33,7 +34,7 @@ const getApp = async () => {
     res.status(r.code).json(r)
   })
 
-  app.use(authModule, clientModule)
+  app.use(authModule, clientModule, projectModule)
 
   app.use(notFoundHandler())
   app.use(errorHandler())

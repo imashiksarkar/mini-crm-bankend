@@ -4,7 +4,7 @@ import { CreateClientDto, UpdateClientDto } from './client.dtos'
 import { clientsTable } from './db/schema'
 import { response } from '@src/lib'
 
-export default class AuthService {
+export default class ClientService {
   static readonly createClient = async (
     userId: string,
     clientAttr: CreateClientDto

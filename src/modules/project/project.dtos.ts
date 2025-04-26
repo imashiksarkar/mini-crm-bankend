@@ -1,16 +1,14 @@
 import { z } from 'zod'
+import { projectStatusEnum } from './db/schema'
 
-export const createClientDto = z.object({
-  name: z.string({ required_error: 'Name is required' }).trim().min(2),
-  email: z
-    .string({ required_error: 'Email is required' })
-    .email('Invalid email'),
-  phone: z.string().trim().min(2),
-  company: z.string().trim().min(2).optional(),
-  notes: z.string().trim().min(2).optional(),
+export const createProjectDto = z.object({
+  clientId: z.string({ required_error: 'Client ID is required' }).trim().min(2),
+  title: z.string({ required_error: 'Title is required' }).trim().min(2),
+  budget: z.number().min(10),
+  deadline: z.coerce
+    .date()
+    .refine((date) => date > new Date(), 'Deadline must be in the future'),
+  status: z.enum(projectStatusEnum.enumValues).default('idle').optional(),
 })
 
-export const updateUserDto = createClientDto
-
-export type CreateClientDto = z.infer<typeof createClientDto>
-export type UpdateClientDto = z.infer<typeof updateUserDto>
+export type CreateProjectDto = z.infer<typeof createProjectDto>

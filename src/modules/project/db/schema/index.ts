@@ -9,6 +9,7 @@ import {
   timestamp,
   uuid,
   pgEnum,
+  integer,
 } from 'drizzle-orm/pg-core'
 import { createSelectSchema } from 'drizzle-zod'
 import { z } from 'zod'
@@ -30,7 +31,7 @@ export const projectsTable = pgTable(
       .references(() => usersTable.id, { onDelete: 'cascade' })
       .notNull(),
     title: text('title').notNull(),
-    budget: numeric('budget').notNull(),
+    budget: integer('budget').notNull(),
     deadline: timestamp('deadline').notNull(),
     status: projectStatusEnum('status').default('idle').notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -42,7 +43,7 @@ export const projectsTable = pgTable(
   (table) => [index('project_title_idx').on(table.title)]
 )
 
-export const projectsRelations = relations(projectsTable, ({ one, many }) => ({
+export const projectsRelations = relations(projectsTable, ({ one }) => ({
   user: one(usersTable, {
     fields: [projectsTable.userId],
     references: [usersTable.id],
@@ -53,5 +54,5 @@ export const projectsRelations = relations(projectsTable, ({ one, many }) => ({
   }),
 }))
 
-export const projectschema = createSelectSchema(projectsTable)
-export type Projectschema = z.infer<typeof projectschema>
+export const projectSchema = createSelectSchema(projectsTable)
+export type ProjectSchema = z.infer<typeof projectSchema>

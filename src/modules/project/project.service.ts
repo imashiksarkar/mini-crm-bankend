@@ -1,77 +1,39 @@
 import { DB } from '@src/config'
-import { and, eq } from 'drizzle-orm'
-import { CreateClientDto, UpdateClientDto } from './project.dtos'
-import { clientsTable } from '@modules/client/db/schema'
+import { CreateProjectDto } from './project.dtos'
+import { projectsTable } from './db/schema'
 import { response } from '@src/lib'
+import { and, eq, sql } from 'drizzle-orm'
+import { clientsTable } from '@modules/client/db/schema'
 
-export default class AuthService {
-  static readonly createClient = async (
+export default class ProjectService {
+  static readonly createProject = async (
     userId: string,
-    clientAttr: CreateClientDto
+    projectAttr: CreateProjectDto
   ) => {
-    const [client] = await DB.$.insert(clientsTable)
+    // does the project belong to same user client
+    const [client = undefined] = await DB.$.select()
+      .from(clientsTable)
+      .where(
+        and(
+          eq(sql`${userId}`, clientsTable.userId),
+          eq(clientsTable.id, sql`${projectAttr.clientId}`)
+        )
+      )
+
+    if (!client) throw response().error(404).message('Client not found').exec()
+
+    const [project = undefined] = await DB.$.insert(projectsTable)
       .values([
         {
           userId,
-          ...clientAttr,
+          ...projectAttr,
         },
       ])
       .returning()
 
-    return client
-  }
+    if (!project)
+      throw response().error(500).message('Failed to create project').exec()
 
-  static readonly updateClient = async (
-    clientId: string,
-    userId: string,
-    clientAttr: UpdateClientDto
-  ) => {
-    const [client = undefined] = await DB.$.update(clientsTable)
-      .set(clientAttr)
-      .where(
-        and(eq(clientsTable.id, clientId), eq(clientsTable.userId, userId))
-      )
-      .returning()
-
-    if (!client) throw response().error(404).message('Client not found').exec()
-
-    return client
-  }
-
-  static readonly deleteClient = async (clientId: string, userId: string) => {
-    const [client = undefined] = await DB.$.delete(clientsTable)
-      .where(
-        and(eq(clientsTable.id, clientId), eq(clientsTable.userId, userId))
-      )
-      .returning()
-
-    if (!client) throw response().error(404).message('Client not found').exec()
-
-    return client
-  }
-
-  static readonly getClientDetails = async (
-    clientId: string,
-    userId: string
-  ) => {
-    const [client = undefined] = await DB.$.select()
-      .from(clientsTable)
-      .where(
-        and(eq(clientsTable.id, clientId), eq(clientsTable.userId, userId))
-      )
-
-    if (!client) throw response().error(404).message('Client not found').exec()
-
-    return client
-  }
-
-  static readonly getAllClientsByUser = async (userId: string) => {
-    const clients = await DB.$.select()
-      .from(clientsTable)
-      .where(eq(clientsTable.userId, userId))
-
-    if (!clients) throw response().error(404).message('Client not found').exec()
-
-    return clients
+    return project
   }
 }
