@@ -48,7 +48,6 @@ describe('auth', async () => {
     const res = await request(app)
       .delete('/auth/signout')
       .set('Cookie', refreshToken)
-      .send(cred)
       .expect(200)
 
     expect(res.headers['set-cookie']).toEqual([

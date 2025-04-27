@@ -105,6 +105,8 @@ export default class AuthService {
         role: usersTable.role,
       })
 
+    if (!newUser) throw response().error(404).message('User not found').exec()
+
     return newUser
   }
 
