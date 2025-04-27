@@ -20,7 +20,6 @@ export const signupUserDto = z.object({
       }
     )
     .transform(async (arg) => await Hashing.hash(arg)),
-  role: z.array(z.enum(userRoleEnum.enumValues).default('user')),
 })
 
 export const signinUserDto = z.object({
