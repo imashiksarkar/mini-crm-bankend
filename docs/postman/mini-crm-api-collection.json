@@ -1,0 +1,460 @@
+{
+  "info": {
+    "_postman_id": "6e516e1e-6eff-47d3-98da-b7a14f8a60b8",
+    "name": "MINI CRM API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "16493198"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Signup",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "// {\n//     \"name\": \"Ashik Sarkar\",\n//     \"email\": \"admin@gmail.com\",\n//     \"password\": \"A5shiklngya\"\n// }\n{\n    \"name\": \"Mario r.\",\n    \"email\": \"user@gmail.com\",\n    \"password\": \"A5shiklngya\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/auth/signup",
+              "host": ["{{url}}"],
+              "path": ["auth", "signup"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Signin",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "// {\n//     \"email\": \"admin@gmail.com\",\n//     \"password\": \"A5shiklngya\"\n// }\n{\n    \"email\": \"user@gmail.com\",\n    \"password\": \"A5shiklngya\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/auth/signin",
+              "host": ["{{url}}"],
+              "path": ["auth", "signin"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Signout",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"aashiakaa@gmail.com\",\n    \"password\": \"A5shiklngya\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/auth/signout",
+              "host": ["{{url}}"],
+              "path": ["auth", "signout"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Roles",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"aashiakaa@gmail.com\",\n    \"password\": \"A5shiklngya\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/auth/roles",
+              "host": ["{{url}}"],
+              "path": ["auth", "roles"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Role",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"user@gmail.com\",\n    \"role\": [\"user\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/auth/roles",
+              "host": ["{{url}}"],
+              "path": ["auth", "roles"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"mario@gmail.com\",\n    \"role\": [\"admin\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/auth/refresh",
+              "host": ["{{url}}"],
+              "path": ["auth", "refresh"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Client",
+      "item": [
+        {
+          "name": "Create Client",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "// {\n//     \"name\": \"Client Natore\",\n//     \"email\": \"clientnatore@gmail.com\",\n//     \"phone\": \"01234567890\",\n//     \"company\": \"softyMart\",\n//     \"notes\": \"here is a note...\"\n// }\n\n{\n    \"name\": \"Client Singra1\",\n    \"email\": \"clientsingra1@gmail.com\",\n    \"phone\": \"01234567890\",\n    \"company\": \"softyMart\",\n    \"notes\": \"here is a note...\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/clients",
+              "host": ["{{url}}"],
+              "path": ["clients"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Client",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Client Singra Update-2\",\n    \"email\": \"clientsingra@gmail.com\",\n    \"phone\": \"01234567890\"\n    // \"company\": \"softyMart\",\n    // \"notes\": \"here is a note...\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/clients/5b841718-940f-492c-80f9-72805b13d563",
+              "host": ["{{url}}"],
+              "path": ["clients", "5b841718-940f-492c-80f9-72805b13d563"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Client",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Client Singra Update-2\",\n    \"email\": \"clientsingra@gmail.com\",\n    \"phone\": \"01234567890\"\n    // \"company\": \"softyMart\",\n    // \"notes\": \"here is a note...\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/clients/5b841718-940f-492c-80f9-72805b13d563",
+              "host": ["{{url}}"],
+              "path": ["clients", "5b841718-940f-492c-80f9-72805b13d563"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Client Details",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "// {\n//     \"name\": \"Client Natore\",\n//     \"email\": \"clientnatore@gmail.com\",\n//     \"phone\": \"01234567890\",\n//     \"company\": \"softyMart\",\n//     \"notes\": \"here is a note...\"\n// }\n\n{\n    \"name\": \"Client Singra\",\n    \"email\": \"clientsingra@gmail.com\",\n    \"phone\": \"01234567890\",\n    \"company\": \"softyMart\",\n    \"notes\": \"here is a note...\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/clients/1c26b80a-03c2-4dd1-b8e6-093d9db733fd",
+              "host": ["{{url}}"],
+              "path": ["clients", "1c26b80a-03c2-4dd1-b8e6-093d9db733fd"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List All Client",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "// {\n//     \"name\": \"Client Natore\",\n//     \"email\": \"clientnatore@gmail.com\",\n//     \"phone\": \"01234567890\",\n//     \"company\": \"softyMart\",\n//     \"notes\": \"here is a note...\"\n// }\n\n{\n    \"name\": \"Client Singra\",\n    \"email\": \"clientsingra@gmail.com\",\n    \"phone\": \"01234567890\",\n    \"company\": \"softyMart\",\n    \"notes\": \"here is a note...\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/clients",
+              "host": ["{{url}}"],
+              "path": ["clients"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Project",
+      "item": [
+        {
+          "name": "Create Project",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [""],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set(\"project-deadline\", new Date(Date.now() + 1000 * 60 * 60))"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"clientId\": \"dce88e3d-4fbd-4df8-a481-cccd7f5b66b8\",\n    \"title\": \"project-4\",\n    \"budget\": 1000,\n    \"deadline\": \"{{project-deadline}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/projects",
+              "host": ["{{url}}"],
+              "path": ["projects"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Project",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [""],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set(\"project-deadline\", new Date(Date.now() + 1000 * 60 * 60))"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"clientId\": \"dce88e3d-4fbd-4df8-a481-cccd7f5b66b8\",\n    \"title\": \"project-4.2\",\n    \"budget\": 1000,\n    \"deadline\": \"{{project-deadline}}\",\n    \"status\": \"finished\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/projects/5a120392-a08a-4da4-bc4d-6f543ac162a5",
+              "host": ["{{url}}"],
+              "path": ["projects", "5a120392-a08a-4da4-bc4d-6f543ac162a5"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Project",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [""],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [""],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/projects/5a120392-a08a-4da4-bc4d-6f543ac162a5",
+              "host": ["{{url}}"],
+              "path": ["projects", "5a120392-a08a-4da4-bc4d-6f543ac162a5"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "project-deadline",
+      "value": "\"\"",
+      "type": "string"
+    }
+  ]
+}

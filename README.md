@@ -18,6 +18,10 @@ docker compose down # to stop the project
 
 ```
 
+## API Documentation
+
+You can find the Postman API documentation for this project [here](/docs/postman/mini-crm-api-collection.json)
+
 ## Features
 
 **User Authentication:** Freelancers can sign up, sign in, and sign out.
