@@ -6,6 +6,18 @@
 
 This project is a mini-crm api, where freelancers can manage their clients and projects. The api is built using Node.js, Express.js, MongoDB, Mongoose, TypeScript, and Vitest.
 
+## How to run the project
+
+```shell
+# Run the project
+docker compose up crm-api postgres-prod # can also apply -d flag to run in background
+# One volume will be created for the database
+
+docker compose down # to stop the project
+# Can also append -v to remove the volume
+
+```
+
 ## Features
 
 **User Authentication:** Freelancers can sign up, sign in, and sign out.
@@ -33,15 +45,3 @@ This project is a mini-crm api, where freelancers can manage their clients and p
 **Docker:** Docker is a containerization platform that allows developers to package and run applications in isolated environments.
 
 **Supertest:** Supertest is a testing framework for Node.js that provides a simple and easy-to-use interface for making HTTP requests to a server.
-
-## Run the project
-
-```shell
-# Run the project
-docker compose up crm-api postgres-prod # can also apply -d flag to run in background
-# One volume will be created for the database
-
-docker compose down # to stop the project
-# Can also append -v to remove the volume
-
-```
