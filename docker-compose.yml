@@ -5,26 +5,31 @@ services:
     ports:
       - '3000:3000'
     environment:
-      DB_URL: postgres://testuser:testpassword@postgres-test:5432/minicrm
+      DB_URL: postgres://produser:prodpassword@postgres-prod:5432/minicrm
       PORT: 3000
       JWT_SECRET: secret
       ACC_TOKEN_EXP: 300000 # 5 minutes
       REF_TOKEN_EXP: 86400000 # 1 day
     depends_on:
       - postgres-prod
+    restart: always
+
   postgres-prod:
     image: postgres:16.8-alpine
-    container_name: postgres-test
+    container_name: postgres-prod
     environment:
-      POSTGRES_USER: testuser
-      POSTGRES_PASSWORD: testpassword
+      POSTGRES_USER: produser
+      POSTGRES_PASSWORD: prodpassword
       POSTGRES_DB: minicrm
+    volumes:
+      - ./migrations:/docker-entrypoint-initdb.d
+      - crm-data:/var/lib/postgresql/data
 
   postgres-test:
     image: postgres:16.8-alpine
     container_name: postgres-test
     ports:
-      - '5433:5432'
+      - '5432:5432'
     environment:
       POSTGRES_USER: testuser
       POSTGRES_PASSWORD: testpassword
@@ -42,3 +47,6 @@ services:
         'synchronous_commit=off',
       ]
     restart: 'no'
+
+volumes:
+  crm-data:
