@@ -173,7 +173,6 @@ describe('client', async () => {
     const deletedProject = await request(app)
       .delete(`/projects/${projectId}`)
       .set('Cookie', accessToken)
-      .send(data)
 
     expect(deletedProject.body.success).toBe(true)
     expect(deletedProject.body.data.id).toBe(projectId)
@@ -202,7 +201,6 @@ describe('client', async () => {
     const project = await request(app)
       .post('/projects')
       .set('Cookie', accessToken)
-      .send(data)
     const projectId = project.body.data.id as string
 
     const deletedProject = await request(app)
