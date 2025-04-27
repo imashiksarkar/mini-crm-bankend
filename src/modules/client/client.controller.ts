@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express'
 import ClientService from './client.service'
 import { catchAsync, response } from '@src/lib'
 import { createClientDto, updateUserDto } from './client.dtos'
-import { requireAuth } from '@src/middlewares'
+import { requireAuth, requireRole } from '@src/middlewares'
 import { ReqWithUser } from '@src/middlewares/requireAuth.middleware'
 
 class ClientController {
@@ -31,6 +31,7 @@ class ClientController {
     this.router.post(
       path,
       requireAuth(),
+      requireRole(['user']),
       catchAsync(async (req: ReqWithUser, res: Response) => {
         const { id } = req.locals.user
         const body = createClientDto.parse(req.body)

@@ -5,7 +5,7 @@ export const createClientDto = z.object({
   email: z
     .string({ required_error: 'Email is required' })
     .email('Invalid email'),
-  phone: z.string().trim().min(2),
+  phone: z.string({ required_error: 'Phone is required' }).trim().min(2),
   company: z.string().trim().min(2).optional(),
   notes: z.string().trim().min(2).optional(),
 })

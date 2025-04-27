@@ -27,7 +27,11 @@ export default class ClientService {
     clientAttr: UpdateClientDto
   ) => {
     const [client = undefined] = await DB.$.update(clientsTable)
-      .set(clientAttr)
+      .set({
+        ...clientAttr,
+        company: clientAttr.company || null,
+        notes: clientAttr.notes || null,
+      })
       .where(
         and(eq(clientsTable.id, clientId), eq(clientsTable.userId, userId))
       )
