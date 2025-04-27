@@ -1,4 +1,25 @@
 services:
+  crm-api:
+    image: imashiksarkar/crm-api:v1.0.1
+    container_name: crm-api
+    ports:
+      - '3000:3000'
+    environment:
+      DB_URL: postgres://testuser:testpassword@postgres-test:5432/minicrm
+      PORT: 3000
+      JWT_SECRET: secret
+      ACC_TOKEN_EXP: 300000 # 5 minutes
+      REF_TOKEN_EXP: 86400000 # 1 day
+    depends_on:
+      - postgres-prod
+  postgres-prod:
+    image: postgres:16.8-alpine
+    container_name: postgres-test
+    environment:
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpassword
+      POSTGRES_DB: minicrm
+
   postgres-test:
     image: postgres:16.8-alpine
     container_name: postgres-test

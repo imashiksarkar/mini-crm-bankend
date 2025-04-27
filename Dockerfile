@@ -1,10 +1,12 @@
-FROM node:18-alpine as builder
+FROM node:18-alpine AS builder
+
+RUN echo "Provide environment variables as follows: https://github.com/imashiksarkar/mini-crm-bankend/blob/0373be88f87834b1709fe91cce764a296dc99387/.env.example"
 
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@8
 
 RUN pnpm install
 
@@ -20,15 +22,11 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@8
 
-RUN pnpm install --omit=dev
+RUN pnpm install --prod
 
 COPY --from=builder /app/dist ./
-
-# ARG DB_URL = "postgres://postgres:postgres@localhost:5432/test_db"
-
-RUN pnpm run db:update
 
 CMD ["node", "server.js"]
 
