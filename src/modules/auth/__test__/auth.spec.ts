@@ -3,6 +3,7 @@ import { Hashing } from '@src/lib'
 import request from 'supertest'
 import { describe, expect, it } from 'vitest'
 import { signupUserDto } from '../auth.dtos'
+import authService from '../auth.service'
 
 describe('auth', async () => {
   const app = await appPromisse
@@ -62,15 +63,22 @@ describe('auth', async () => {
   })
 
   it('allows admin to change the user role', async () => {
-    cred.role = ['admin']
     const user = await request(app).post('/auth/signup').send(cred).expect(201)
 
-    const [accessToken] = user.headers['set-cookie']
+    // change user role using service
+    await authService.changeRole({
+      email: user.body.data.email,
+      role: ['admin'],
+    })
 
-    cred.role = ['admin', 'user']
+    // signin as admin
+    const admin = await request(app).post('/auth/signin').send(cred).expect(200)
+    const [adminAccessToken] = admin.headers['set-cookie']
+
+    cred.role = ['user', 'admin']
     const res = await request(app)
       .patch('/auth/roles')
-      .set('Cookie', accessToken)
+      .set('Cookie', adminAccessToken)
       .send(cred)
 
     expect(res.body.success).toBe(true)
@@ -93,15 +101,22 @@ describe('auth', async () => {
   })
 
   it('should not allow empty role', async () => {
-    cred.role = ['admin']
     const user = await request(app).post('/auth/signup').send(cred).expect(201)
 
-    const [accessToken] = user.headers['set-cookie']
+    // change user role using service
+    await authService.changeRole({
+      email: user.body.data.email,
+      role: ['admin'],
+    })
+
+    // signin as admin
+    const admin = await request(app).post('/auth/signin').send(cred).expect(200)
+    const [adminAccessToken] = admin.headers['set-cookie']
 
     cred.role = []
     const res = await request(app)
       .patch('/auth/roles')
-      .set('Cookie', accessToken)
+      .set('Cookie', adminAccessToken)
       .send(cred)
 
     expect(res.body.success).toBe(false)
