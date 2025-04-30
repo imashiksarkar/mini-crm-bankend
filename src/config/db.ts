@@ -19,23 +19,18 @@ export default class DB {
       return
     }
 
-    try {
-      const client = new Client({ connectionString })
-      await client.connect()
-      await client.query('SELECT 1')
+    const client = new Client({ connectionString })
+    await client.connect()
+    await client.query('SELECT 1')
 
-      const db = drizzle(client, {
-        logger: validatedEnv.IS_DEVELOPMENT,
-      })
+    const db = drizzle(client, {
+      logger: validatedEnv.IS_DEVELOPMENT,
+    })
 
-      ;(db as DbType).$client = client
+    ;(db as DbType).$client = client
 
-      this._db = db as DbType
-      console.info('Database connected')
-    } catch (error) {
-      console.error('Failed to connect to the database:', error)
-      throw error
-    }
+    this._db = db as DbType
+    console.info('Database connected')
   }
 
   static get $(): DbType {
