@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { CreateProjectDto } from '../project.dtos'
 import { CreateClientDto } from '@src/modules/client/client.dtos'
 
-describe('client', async () => {
+describe('project', async () => {
   const app = await appPromise
 
   const cred = {
@@ -183,10 +183,10 @@ describe('client', async () => {
     const [accessToken] = user.headers['set-cookie']
 
     cred.email = 'ashik4@gmail.com'
-    const user4 = await request(app).post('/auth/signup').send(cred)
-    const [accessToken4] = user4.headers['set-cookie']
+    const user1 = await request(app).post('/auth/signup').send(cred)
+    const [accessToken1] = user1.headers['set-cookie']
 
-    const client = await request(app)
+    const createdClient = await request(app)
       .post('/clients')
       .set('Cookie', accessToken)
       .send({
@@ -195,17 +195,18 @@ describe('client', async () => {
         phone: '01234567890',
       } satisfies CreateClientDto)
       .expect(201)
+    data.clientId = createdClient.body.data.id
 
-    data.clientId = client.body.data.id
-
-    const project = await request(app)
+    const createdProject = await request(app)
       .post('/projects')
       .set('Cookie', accessToken)
-    const projectId = project.body.data.id as string
+      .send(data)
+      .expect(201)
+    const projectId = createdProject.body?.data?.id as string
 
     const deletedProject = await request(app)
       .delete(`/projects/${projectId}`)
-      .set('Cookie', accessToken4)
+      .set('Cookie', accessToken1)
       .send(data)
 
     expect(deletedProject.body.success).toBe(false)

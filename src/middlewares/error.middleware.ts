@@ -28,10 +28,7 @@ const errorHandler =
     )
       e = response().error(401).message(err.message).exec()
     else if (err instanceof ZodError) {
-      e = response()
-        .error(400)
-        .message(Object.values(formatZodError(err)).join('\n'))
-        .exec()
+      e = response().error(400).message(err.format()._errors).exec()
     } else if (err instanceof Error)
       e = response().error(500).message(err.message).exec()
 
@@ -46,16 +43,3 @@ const errorHandler =
   }
 
 export default errorHandler
-
-function formatZodError(error: ZodError) {
-  const formatted: Record<string, string> = {}
-
-  for (const issue of error.errors) {
-    const field = issue.path[0]
-    if (typeof field === 'string') {
-      formatted[field] = issue.message
-    }
-  }
-
-  return formatted
-}

@@ -33,6 +33,7 @@ class ProjectController {
       requireAuth(),
       catchAsync(async (req: ReqWithUser, res: Response) => {
         const { id } = req.locals.user
+
         const body = createProjectDto.parse(req.body)
 
         const project = await this.projectService.createProject(id, body)
