@@ -44,9 +44,11 @@ export const signinUserDto = z.object({
 export const changeUserRoleDto = z.object({
   email: z.string().email(),
   role: z
-    .array(z.enum(userRoleEnum.enumValues))
+    .array(z.enum(userRoleEnum.enumValues), {
+      required_error: 'Role is required',
+    })
     .refine((role) => role.length > 0, {
-      message: 'Role is required',
+      message: 'Role must not be empty',
     }),
 })
 

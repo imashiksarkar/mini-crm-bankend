@@ -6,7 +6,7 @@ import {
   TokenExpiredError,
   NotBeforeError,
 } from 'jsonwebtoken'
-import { ZodError } from 'zod'
+import { ZodError, ZodFormattedError } from 'zod'
 
 const errorHandler =
   () =>
@@ -28,7 +28,11 @@ const errorHandler =
     )
       e = response().error(401).message(err.message).exec()
     else if (err instanceof ZodError) {
-      e = response().error(400).message(err.format()._errors).exec()
+      console.log()
+      const fieldError = Object.values(err.flatten().fieldErrors)
+        .flat()
+        .join('\n')
+      e = response().error(400).message(fieldError).exec()
     } else if (err instanceof Error)
       e = response().error(500).message(err.message).exec()
 

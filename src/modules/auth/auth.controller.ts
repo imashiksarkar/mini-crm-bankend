@@ -121,7 +121,7 @@ class AuthController {
       requireAuth(),
       requireRole(['admin']),
       catchAsync(async (req: Request, res: Response) => {
-        const body = await changeUserRoleDto.parseAsync(req.body)
+        const body = await changeUserRoleDto.parse(req.body)
 
         const user = await this.authService.changeRole(body)
 

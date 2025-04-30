@@ -120,7 +120,7 @@ describe('auth', async () => {
       .send(cred)
 
     expect(res.body.success).toBe(false)
-    expect(res.body.error.message[0]).toMatch(/required/gi)
+    expect(res.body.error.message[0]).toMatch(/not be empty/gi)
   })
 
   it('lets usr to refresh token', async () => {
