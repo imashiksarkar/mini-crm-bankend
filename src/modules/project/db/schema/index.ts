@@ -20,28 +20,24 @@ export const projectStatusEnum = pgEnum('project_status', [
   'finished',
 ])
 
-export const projectsTable = pgTable(
-  'projects',
-  {
-    id: uuid('id').defaultRandom().primaryKey(),
-    clientId: uuid('client_id')
-      .references(() => clientsTable.id, { onDelete: 'cascade' })
-      .notNull(),
-    userId: uuid('user_id')
-      .references(() => usersTable.id, { onDelete: 'cascade' })
-      .notNull(),
-    title: text('title').notNull(),
-    budget: integer('budget').notNull(),
-    deadline: timestamp('deadline').notNull(),
-    status: projectStatusEnum('status').default('idle').notNull(),
-    createdAt: timestamp('created_at').notNull().defaultNow(),
-    updatedAt: timestamp('updated_at')
-      .notNull()
-      .defaultNow()
-      .$onUpdate(() => new Date()),
-  },
-  (table) => [index('project_title_idx').on(table.title)]
-)
+export const projectsTable = pgTable('projects', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  clientId: uuid('client_id')
+    .references(() => clientsTable.id, { onDelete: 'cascade' })
+    .notNull(),
+  userId: uuid('user_id')
+    .references(() => usersTable.id, { onDelete: 'cascade' })
+    .notNull(),
+  title: text('title').notNull(),
+  budget: integer('budget').notNull(),
+  deadline: timestamp('deadline').notNull(),
+  status: projectStatusEnum('status').default('idle').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at')
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+})
 
 export const projectsRelations = relations(projectsTable, ({ one }) => ({
   user: one(usersTable, {

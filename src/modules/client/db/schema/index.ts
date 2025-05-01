@@ -1,7 +1,13 @@
 import { usersTable } from '@src/modules/auth/db/schema'
 import { projectsTable } from '@src/modules/project/db/schema'
 import { relations } from 'drizzle-orm'
-import { index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
+import {
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from 'drizzle-orm/pg-core'
 import { createSelectSchema } from 'drizzle-zod'
 import { z } from 'zod'
 
@@ -24,7 +30,7 @@ export const clientsTable = pgTable(
       .$onUpdate(() => new Date()),
   },
   (table) => [
-    index('client_text_search_idx').on(table.name, table.email),
+    uniqueIndex('user_client_unique_idx').on(table.userId, table.email),
   ]
 )
 
@@ -33,7 +39,7 @@ export const clientsRelations = relations(clientsTable, ({ one, many }) => ({
     fields: [clientsTable.userId],
     references: [usersTable.id],
   }),
-  projects: many(projectsTable)
+  projects: many(projectsTable),
 }))
 
 export const clientSchema = createSelectSchema(clientsTable)

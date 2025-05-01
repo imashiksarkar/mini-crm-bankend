@@ -1,3 +1,4 @@
+import { projectsTable } from '@src/modules/project/db/schema'
 import { relations } from 'drizzle-orm'
 import {
   index,
@@ -54,6 +55,7 @@ export const tokensTable = pgTable(
 
 export const usersRelations = relations(usersTable, ({ many }) => ({
   tokens: many(tokensTable),
+  projects: many(projectsTable),
 }))
 
 export const tokensRelations = relations(tokensTable, ({ one }) => ({
