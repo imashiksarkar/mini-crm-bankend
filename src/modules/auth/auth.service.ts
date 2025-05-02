@@ -1,6 +1,6 @@
 import { DB } from '@src/config'
 import { jwt, response, validatedEnv } from '@src/lib'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { ChangeUserRoleDto, SigninUserDto, SignupUserDto } from './auth.dtos'
 import { tokensTable, userRoleEnum, usersTable } from './db/schema'
 
@@ -52,7 +52,12 @@ export default class AuthService {
   static readonly signin = async (userAttr: SigninUserDto) => {
     const [existingUser = null] = await DB.$.select()
       .from(usersTable)
-      .where(eq(usersTable.email, userAttr.email))
+      .where(
+        and(
+          eq(usersTable.email, userAttr.email),
+          eq(usersTable.password, userAttr.password)
+        )
+      )
 
     if (!existingUser)
       throw response().error(404).message('User not found').exec()
