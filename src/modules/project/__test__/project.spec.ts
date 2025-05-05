@@ -7,14 +7,27 @@ import { CreateClientDto } from '@src/modules/client/client.dtos'
 describe('project', async () => {
   const app = await appPromise
 
-  const cred = {
-    name: 'Ashik S',
-    email: 'ashik@gmail.com',
-    password: 'A5shiklngya',
-    role: ['admin'],
+  const pokimonCred = {
+    name: 'Pokomin S',
+    email: 'pokomin@gmail.com',
+    password: 'A5shikadmin',
   }
 
-  const data: CreateProjectDto = {
+  const marioCred = {
+    name: 'Mario R',
+    email: 'amrio@gmail.com',
+    password: 'A5shikmario',
+  }
+
+  const clientPayload: CreateClientDto = {
+    name: 'Client 1',
+    email: 'client@gmail.com',
+    phone: '01234567890',
+    company: 'ashik', // optional
+    notes: 'ashik', // optional
+  }
+
+  const projectPayload: CreateProjectDto = {
     clientId: '',
     title: 'project-1',
     budget: 1000,
@@ -22,194 +35,160 @@ describe('project', async () => {
   }
 
   it('should be able to create project for own client', async () => {
-    // create user
-    const user = await request(app).post('/auth/signup').send(cred)
-    const [accessToken] = user.headers['set-cookie']
+    const pokimon = await request(app).post('/auth/signup').send(pokimonCred)
+    const [pokimonAT] = pokimon.headers['set-cookie']
 
-    // create client
-    const createdClient = await request(app)
+    const pokimonClient = await request(app)
       .post('/clients')
-      .set('Cookie', accessToken)
-      .send({
-        email: 'ashik@gmail.com',
-        name: 'ashik',
-        phone: '01234567890',
-      } satisfies CreateClientDto)
+      .set('Cookie', pokimonAT)
+      .send(clientPayload)
+    projectPayload.clientId = pokimonClient.body.data.id
 
-    data.clientId = createdClient.body.data.id
-
-    // create project
-    const res = await request(app)
+    const createProjectRes = await request(app)
       .post('/projects')
-      .set('Cookie', accessToken)
-      .send(data)
+      .set('Cookie', pokimonAT)
+      .send(projectPayload)
 
-    expect(res.body.data).toBeDefined()
+    expect(createProjectRes.body.data).toBeDefined()
   })
 
   it('should not be able to create project for other client', async () => {
-    // create user
-    const user1 = await request(app).post('/auth/signup').send(cred)
-    const [user1AccessToken] = user1.headers['set-cookie']
+    const pokimon = await request(app).post('/auth/signup').send(pokimonCred)
+    const [pokimonAT] = pokimon.headers['set-cookie']
 
-    cred.email = 'ashik2@gmail.com'
-    const user2 = await request(app).post('/auth/signup').send(cred)
-    const [user2AccessToken] = user2.headers['set-cookie']
+    const mario = await request(app).post('/auth/signup').send(marioCred)
+    const [marioAT] = mario.headers['set-cookie']
 
-    // create client for user1
-    const user1CreatedClient = await request(app)
+    const pokimonClient = await request(app)
       .post('/clients')
-      .set('Cookie', user1AccessToken)
-      .send({
-        email: 'ashik@gmail.com',
-        name: 'ashik',
-        phone: '01234567890',
-      } satisfies CreateClientDto)
+      .set('Cookie', pokimonAT)
+      .send(clientPayload)
+    projectPayload.clientId = pokimonClient.body.data.id
 
-    data.clientId = user1CreatedClient.body.data.id
-
-    // create project for client of user1 with user2 access token
-    const res = await request(app)
+    // mario creating project for a client created by pokimon
+    const createProjectRes = await request(app)
       .post('/projects')
-      .set('Cookie', user2AccessToken)
-      .send(data)
+      .set('Cookie', marioAT)
+      .send(projectPayload)
 
-    expect(res.body.code).toBe(401)
+    expect(createProjectRes.body.code).toBe(401)
+    expect(createProjectRes.body.error.message[0]).toMatch(/unauthorized/gi)
   })
 
   it('should be able to update own project', async () => {
-    // create user
-    const user = await request(app).post('/auth/signup').send(cred)
-    const [accessToken] = user.headers['set-cookie']
+    const pokimon = await request(app).post('/auth/signup').send(pokimonCred)
+    const [pokimonAT] = pokimon.headers['set-cookie']
 
-    const client = await request(app)
+    const pokimonClient = await request(app)
       .post('/clients')
-      .set('Cookie', accessToken)
-      .send({
-        email: 'ashik@gmail.com',
-        name: 'ashik',
-        phone: '01234567890',
-      } satisfies CreateClientDto)
+      .set('Cookie', pokimonAT)
+      .send(clientPayload)
       .expect(201)
 
-    data.clientId = client.body.data.id
+    projectPayload.clientId = pokimonClient.body.data.id
 
-    const project = await request(app)
+    const pokimonProject = await request(app)
       .post('/projects')
-      .set('Cookie', accessToken)
-      .send(data)
-    const projectId = project.body.data.id as string
+      .set('Cookie', pokimonAT)
+      .send(projectPayload)
+    const projectId = pokimonProject.body.data.id as string
 
-    data.status = 'in-progress'
-    const updatedProject = await request(app)
+    projectPayload.status = 'in-progress'
+    const updateProjectRes = await request(app)
       .patch(`/projects/${projectId}`)
-      .set('Cookie', accessToken)
-      .send(data)
+      .set('Cookie', pokimonAT)
+      .send(projectPayload)
 
-    expect(updatedProject.body.success).toBe(true)
-    expect(updatedProject.body.data).toBeDefined()
+    expect(updateProjectRes.body.success).toBe(true)
+    expect(updateProjectRes.body.data).toBeDefined()
   })
 
   it("should not be able to update others' project", async () => {
-    const user = await request(app).post('/auth/signup').send(cred)
-    const [accessToken] = user.headers['set-cookie']
+    const pokimon = await request(app).post('/auth/signup').send(pokimonCred)
+    const [pokimonAT] = pokimon.headers['set-cookie']
 
-    cred.email = 'ashik20@gmail.com'
-    const user2 = await request(app).post('/auth/signup').send(cred)
-    const [accessToken2] = user2.headers['set-cookie']
+    const mario = await request(app).post('/auth/signup').send(marioCred)
+    const [marioAT] = mario.headers['set-cookie']
 
-    const client = await request(app)
+    const pokimonClient = await request(app)
       .post('/clients')
-      .set('Cookie', accessToken)
-      .send({
-        email: 'ashik@gmail.com',
-        name: 'ashik',
-        phone: '01234567890',
-      } satisfies CreateClientDto)
+      .set('Cookie', pokimonAT)
+      .send(clientPayload)
       .expect(201)
 
-    data.clientId = client.body.data.id
+    projectPayload.clientId = pokimonClient.body.data.id
 
-    const project = await request(app)
+    const pokimonProject = await request(app)
       .post('/projects')
-      .set('Cookie', accessToken)
-      .send(data)
-    const projectId = project.body.data.id as string
+      .set('Cookie', pokimonAT)
+      .send(projectPayload)
+    const projectId = pokimonProject.body.data.id as string
 
-    data.status = 'in-progress'
-    const updatedProject = await request(app)
+    projectPayload.status = 'in-progress'
+    const updateProjectRes = await request(app)
       .patch(`/projects/${projectId}`)
-      .set('Cookie', accessToken2)
-      .send(data)
+      .set('Cookie', marioAT)
+      .send(projectPayload)
 
-    expect(updatedProject.body.success).toBe(false)
-    expect(updatedProject.body.error.message.join(',')).toMatch(
+    expect(updateProjectRes.body.success).toBe(false)
+    expect(updateProjectRes.body.error.message.join(',')).toMatch(
       /unauthorized/gi
     )
   })
 
   it('should be able to delete own project', async () => {
-    const user = await request(app).post('/auth/signup').send(cred)
-    const [accessToken] = user.headers['set-cookie']
+    const pokimon = await request(app).post('/auth/signup').send(pokimonCred)
+    const [pokimonAT] = pokimon.headers['set-cookie']
 
-    const client = await request(app)
+    const pokimonClient = await request(app)
       .post('/clients')
-      .set('Cookie', accessToken)
-      .send({
-        email: 'ashik@gmail.com',
-        name: 'ashik',
-        phone: '01234567890',
-      } satisfies CreateClientDto)
+      .set('Cookie', pokimonAT)
+      .send(clientPayload)
       .expect(201)
 
-    data.clientId = client.body.data.id
+    projectPayload.clientId = pokimonClient.body.data.id
 
-    const project = await request(app)
+    const pokimonProject = await request(app)
       .post('/projects')
-      .set('Cookie', accessToken)
-      .send(data)
-    const projectId = project.body.data.id as string
+      .set('Cookie', pokimonAT)
+      .send(projectPayload)
+    const projectId = pokimonProject.body.data.id as string
 
-    const deletedProject = await request(app)
+    const deleteProjectRes = await request(app)
       .delete(`/projects/${projectId}`)
-      .set('Cookie', accessToken)
+      .set('Cookie', pokimonAT)
 
-    expect(deletedProject.body.success).toBe(true)
-    expect(deletedProject.body.data.id).toBe(projectId)
+    expect(deleteProjectRes.body.success).toBe(true)
+    expect(deleteProjectRes.body.data.id).toBe(projectId)
   })
 
   it("should not be able to delete others' project", async () => {
-    const user = await request(app).post('/auth/signup').send(cred)
-    const [accessToken] = user.headers['set-cookie']
+    const pokimon = await request(app).post('/auth/signup').send(pokimonCred)
+    const [pokimonAT] = pokimon.headers['set-cookie']
 
-    cred.email = 'ashik4@gmail.com'
-    const user1 = await request(app).post('/auth/signup').send(cred)
-    const [accessToken1] = user1.headers['set-cookie']
+    const mario = await request(app).post('/auth/signup').send(marioCred)
+    const [marioAT] = mario.headers['set-cookie']
 
-    const createdClient = await request(app)
+    const pokimonClient = await request(app)
       .post('/clients')
-      .set('Cookie', accessToken)
-      .send({
-        email: 'ashik@gmail.com',
-        name: 'ashik',
-        phone: '01234567890',
-      } satisfies CreateClientDto)
+      .set('Cookie', pokimonAT)
+      .send(clientPayload)
       .expect(201)
-    data.clientId = createdClient.body.data.id
+    projectPayload.clientId = pokimonClient.body.data.id
 
-    const createdProject = await request(app)
+    const createProjectRes = await request(app)
       .post('/projects')
-      .set('Cookie', accessToken)
-      .send(data)
+      .set('Cookie', pokimonAT)
+      .send(projectPayload)
       .expect(201)
-    const projectId = createdProject.body?.data?.id as string
+    const projectId = createProjectRes.body?.data?.id as string
 
-    const deletedProject = await request(app)
+    const deleteProjectRes = await request(app)
       .delete(`/projects/${projectId}`)
-      .set('Cookie', accessToken1)
-      .send(data)
+      .set('Cookie', marioAT)
+      .send(projectPayload)
 
-    expect(deletedProject.body.success).toBe(false)
-    expect(deletedProject.body.error.message.join(',')).toMatch(/not found/gi)
+    expect(deleteProjectRes.body.success).toBe(false)
+    expect(deleteProjectRes.body.error.message.join(',')).toMatch(/not found/gi)
   })
 })
