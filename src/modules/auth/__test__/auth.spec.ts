@@ -2,49 +2,78 @@ import appPromisse from '@src/app'
 import { Hashing } from '@src/lib'
 import request from 'supertest'
 import { describe, expect, it } from 'vitest'
-import { signupUserDto } from '../auth.dtos'
+import { ChangeUserRoleDto, signupUserDto } from '../auth.dtos'
 import authService from '../auth.service'
 
 describe('auth', async () => {
   const app = await appPromisse
 
-  const cred = {
-    name: 'Ashik S',
-    email: 'ashik@gmail.com',
-    password: 'A5shiklngya',
-    role: ['admin'],
+  const pokominCred = {
+    name: 'Pokomin S',
+    email: 'pokomin@gmail.com',
+    password: 'A5shikadmin',
   }
 
-  it('validate signup user dto', async () => {
-    const data = await signupUserDto.parseAsync(cred)
+  const marioCred = {
+    name: 'Mario R',
+    email: 'amrio@gmail.com',
+    password: 'A5shikmario',
+  }
 
-    expect(data).toBeDefined()
-  })
+  describe('validations', () => {
+    it('validate signup user dto', async () => {
+      const data = signupUserDto.parse(pokominCred)
 
-  it('verifies the password', async () => {
-    const data = await signupUserDto.parseAsync(cred)
+      expect(data).toBeDefined()
+    })
 
-    expect(await Hashing.verify(cred.password, data.password)).toBe(true)
+    it('verifies the password', async () => {
+      const data = signupUserDto.parse(pokominCred)
+
+      data.password = await Hashing.hash(data.password)
+
+      expect(await Hashing.verify(pokominCred.password, data.password)).toBe(
+        true
+      )
+    })
   })
 
   it('should be able to signup', async () => {
-    const res = await request(app).post('/auth/signup').send(cred)
+    const res = await request(app).post('/auth/signup').send(pokominCred)
 
-    expect(res.body.data.email).toBe(cred.email)
+    expect(res.body.data.email).toBe(pokominCred.email)
     expect(res.headers['set-cookie']).toHaveLength(2)
   })
 
   it('should be able to signin', async () => {
-    await request(app).post('/auth/signup').send(cred).expect(201)
-    const res = await request(app).post('/auth/signin').send(cred).expect(200)
+    await request(app).post('/auth/signup').send(pokominCred).expect(201)
 
+    const { name, ...signInCred } = pokominCred
+    const res = await request(app).post('/auth/signin').send(signInCred)
+
+    expect(res.body.success).toBe(true)
     expect(res.headers['set-cookie']).toHaveLength(2)
-    expect(res.body.data.email).toBe(cred.email)
+    expect(res.body.data.email).toBe(pokominCred.email)
+  })
+
+  it('should not be able to signin with wrong password', async () => {
+    await request(app).post('/auth/signup').send(pokominCred).expect(201)
+
+    const res = await request(app).post('/auth/signin').send({
+      email: pokominCred.email,
+      password: 'A5shiklngya', // wrong password
+    })
+
+    expect(res.body.success).toBe(false)
+    expect(res.body.error.message[0]).toMatch(/invalid/gi)
   })
 
   it('should be able to signout', async () => {
-    const user = await request(app).post('/auth/signup').send(cred).expect(201)
-    const [accessToken, refreshToken] = user.headers['set-cookie']
+    const user = await request(app)
+      .post('/auth/signup')
+      .send(pokominCred)
+      .expect(201)
+    const [_, refreshToken] = user.headers['set-cookie']
 
     const res = await request(app)
       .delete('/auth/signout')
@@ -58,74 +87,112 @@ describe('auth', async () => {
   })
 
   it('should return all roles', async () => {
-    const res = await request(app).get('/auth/roles').send(cred).expect(200)
+    const res = await request(app)
+      .get('/auth/roles')
+      .send(pokominCred)
+      .expect(200)
     console.log('Here are all the allowed roles', res.body.data)
   })
 
   it('allows admin to change the user role', async () => {
-    const user = await request(app).post('/auth/signup').send(cred).expect(201)
+    const rolePayload: ChangeUserRoleDto = {
+      email: marioCred.email,
+      role: ['admin'],
+    }
 
+    await request(app).post('/auth/signup').send(pokominCred).expect(201)
     // change user role using service
     await authService.changeRole({
-      email: user.body.data.email,
+      email: pokominCred.email,
       role: ['admin'],
     })
 
     // signin as admin
-    const admin = await request(app).post('/auth/signin').send(cred).expect(200)
-    const [adminAccessToken] = admin.headers['set-cookie']
+    const { name, ...signInCred } = pokominCred
+    const admin = await request(app)
+      .post('/auth/signin')
+      .send(signInCred)
+      .expect(200)
+    const [adminAT] = admin.headers['set-cookie']
 
-    cred.role = ['user', 'admin']
-    const res = await request(app)
+    // create user
+    await request(app).post('/auth/signup').send(marioCred).expect(201)
+
+    const roleRes = await request(app)
       .patch('/auth/roles')
-      .set('Cookie', adminAccessToken)
-      .send(cred)
+      .set('Cookie', adminAT)
+      .send(rolePayload)
 
-    expect(res.body.success).toBe(true)
+    expect(roleRes.body.success).toBe(true)
+    expect(roleRes.body.data.role).toEqual(rolePayload.role)
   })
 
   it('disallows user to change the user role', async () => {
-    cred.role = ['user']
-    const user = await request(app).post('/auth/signup').send(cred).expect(201)
+    const rolePayload: ChangeUserRoleDto = {
+      email: marioCred.email,
+      role: ['admin', 'user'],
+    }
 
-    const [accessToken] = user.headers['set-cookie']
+    const user = await request(app)
+      .post('/auth/signup')
+      .send(pokominCred)
+      .expect(201)
+    const [userAT] = user.headers['set-cookie']
 
-    cred.role = ['admin', 'user']
-    const res = await request(app)
+    // create mario user
+    await request(app).post('/auth/signup').send(marioCred).expect(201)
+
+    // change mario's role as user
+    const roleRes = await request(app)
       .patch('/auth/roles')
-      .set('Cookie', accessToken)
-      .send(cred)
+      .set('Cookie', userAT)
+      .send(rolePayload)
 
-    expect(res.body.success).toBe(false)
-    expect(res.body.error.message[0]).toMatch(/not allowed/gi)
+    expect(user.body.data.role).toContain('user')
+    expect(user.body.data.role).not.toContain('admin')
+    expect(roleRes.body.success).toBe(false)
+    expect(roleRes.body.error.message[0]).toMatch(/not allowed/gi)
   })
 
   it('should not allow empty role', async () => {
-    const user = await request(app).post('/auth/signup').send(cred).expect(201)
+    const rolePayload: ChangeUserRoleDto = {
+      email: marioCred.email,
+      role: [],
+    }
 
+    // create user
+    await request(app).post('/auth/signup').send(pokominCred).expect(201)
     // change user role using service
     await authService.changeRole({
-      email: user.body.data.email,
+      email: pokominCred.email,
       role: ['admin'],
     })
 
+    // create mario user
+    await request(app).post('/auth/signup').send(marioCred).expect(201)
+
     // signin as admin
-    const admin = await request(app).post('/auth/signin').send(cred).expect(200)
-    const [adminAccessToken] = admin.headers['set-cookie']
+    const { name, ...loginCred } = pokominCred
+    const admin = await request(app)
+      .post('/auth/signin')
+      .send(loginCred)
+      .expect(200)
+    const [adminAT] = admin.headers['set-cookie']
 
-    cred.role = []
-    const res = await request(app)
+    const roleRes = await request(app)
       .patch('/auth/roles')
-      .set('Cookie', adminAccessToken)
-      .send(cred)
+      .set('Cookie', adminAT)
+      .send(rolePayload)
 
-    expect(res.body.success).toBe(false)
-    expect(res.body.error.message[0]).toMatch(/not be empty/gi)
+    expect(roleRes.body.success).toBe(false)
+    expect(roleRes.body.error.message[0]).toMatch(/not be empty/gi)
   })
 
-  it('lets usr to refresh token', async () => {
-    cred.role = ['admin']
-    const user = await request(app).post('/auth/signup').send(cred).expect(201)
+  it('lets user to refresh token', async () => {
+    const user = await request(app)
+      .post('/auth/signup')
+      .send(pokominCred)
+      .expect(201)
 
     const [_, refreshToken] = user.headers['set-cookie']
 

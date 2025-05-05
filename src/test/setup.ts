@@ -1,12 +1,16 @@
 import { DB } from '@src/config'
-import { validatedEnv } from '@src/lib'
 import { tokensTable, usersTable } from '@src/modules/auth/db/schema'
 import { clientsTable } from '@src/modules/client/db/schema'
+import { projectsTable } from '@src/modules/project/db/schema'
 import { beforeAll, beforeEach } from 'vitest'
+
+const db = DB.connect(
+  'postgresql://testuser:testpassword@localhost:5432/minicrm?schema=public'
+)
 
 beforeAll(async () => {
   try {
-    await DB.connect(validatedEnv.DB_URL)
+    await db
   } catch (error) {
     console.log('Could not connect to database (setup)')
     process.exit(1)
@@ -14,7 +18,8 @@ beforeAll(async () => {
 })
 
 beforeEach(async () => {
-  await DB.$.delete(tokensTable)
-  await DB.$.delete(usersTable)
-  await DB.$.delete(clientsTable)
+  await DB.instance.delete(tokensTable)
+  await DB.instance.delete(usersTable)
+  await DB.instance.delete(clientsTable)
+  await DB.instance.delete(projectsTable)
 })

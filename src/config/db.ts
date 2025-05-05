@@ -1,23 +1,22 @@
-import { Client } from 'pg'
+import * as authSchema from '@modules/auth/db/schema'
+import * as clientSchema from '@modules/client/db/schema'
+import * as projectSchema from '@modules/project/db/schema'
 import { validatedEnv } from '@src/lib'
-import {
-  drizzle,
-  NodePgClient,
-  NodePgDatabase,
-} from 'drizzle-orm/node-postgres'
-
-type DbType = NodePgDatabase<Record<string, never>> & {
-  $client: NodePgClient
-}
+import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres'
+import { Client } from 'pg'
 
 export default class DB {
-  private static _db: DbType | null = null
+  private static readonly schema = {
+    ...authSchema,
+    ...clientSchema,
+    ...projectSchema,
+  }
 
-  static async connect(connectionString: string): Promise<void> {
-    if (this._db) {
-      console.info('Database already connected')
-      return
-    }
+  private static _db: NodePgDatabase<typeof this.schema> | null | undefined
+
+  static async connect(connectionString: string) {
+    if (this._db !== undefined) return
+    this._db = null
 
     const client = new Client({ connectionString })
     await client.connect()
@@ -25,18 +24,20 @@ export default class DB {
 
     const db = drizzle(client, {
       logger: validatedEnv.IS_DEVELOPMENT,
+      schema: this.schema,
     })
 
-    ;(db as DbType).$client = client
+    db.$client = client
 
-    this._db = db as DbType
+    this._db = db
+
     console.info('Database connected')
   }
 
-  static get $(): DbType {
-    if (!this._db) {
+  static get instance() {
+    if (!this._db)
       throw new Error('Database not connected. Call DB.connect() first.')
-    }
+
     return this._db
   }
 }

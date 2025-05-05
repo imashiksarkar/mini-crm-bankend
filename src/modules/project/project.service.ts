@@ -11,7 +11,8 @@ export default class ProjectService {
     projectAttr: CreateProjectDto
   ) => {
     // does the project belong to same user client
-    const [client = undefined] = await DB.$.select()
+    const [client = undefined] = await DB.instance
+      .select()
       .from(clientsTable)
       .where(
         and(
@@ -26,7 +27,8 @@ export default class ProjectService {
         .message('Unauthorized to create project')
         .exec()
 
-    const [project = undefined] = await DB.$.insert(projectsTable)
+    const [project = undefined] = await DB.instance
+      .insert(projectsTable)
       .values([
         {
           userId,
@@ -47,7 +49,8 @@ export default class ProjectService {
     projectAttr: UpdateProjectDto
   ) => {
     // does the project belong to same user client
-    const [client = undefined] = await DB.$.select()
+    const [client = undefined] = await DB.instance
+      .select()
       .from(clientsTable)
       .where(and(eq(sql`${userId}`, clientsTable.userId)))
 
@@ -57,7 +60,8 @@ export default class ProjectService {
         .message('Unauthorized to update project')
         .exec()
 
-    const [project = undefined] = await DB.$.update(projectsTable)
+    const [project = undefined] = await DB.instance
+      .update(projectsTable)
       .set(projectAttr)
       .where(eq(projectsTable.id, projectId))
       .returning()
@@ -69,7 +73,8 @@ export default class ProjectService {
   }
 
   static readonly deleteProject = async (projectId: string, userId: string) => {
-    const [project = undefined] = await DB.$.delete(projectsTable)
+    const [project = undefined] = await DB.instance
+      .delete(projectsTable)
       .where(
         and(eq(projectsTable.id, projectId), eq(projectsTable.userId, userId))
       )

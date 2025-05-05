@@ -28,7 +28,6 @@ const errorHandler =
     )
       e = response().error(401).message(err.message).exec()
     else if (err instanceof ZodError) {
-      console.log()
       const fieldError = Object.values(err.flatten().fieldErrors)
         .flat()
         .join('\n')

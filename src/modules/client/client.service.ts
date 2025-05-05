@@ -9,7 +9,8 @@ export default class ClientService {
     userId: string,
     clientAttr: CreateClientDto
   ) => {
-    const [client] = await DB.$.insert(clientsTable)
+    const [client] = await DB.instance
+      .insert(clientsTable)
       .values([
         {
           userId,
@@ -26,7 +27,8 @@ export default class ClientService {
     userId: string,
     clientAttr: UpdateClientDto
   ) => {
-    const [client = undefined] = await DB.$.update(clientsTable)
+    const [client = undefined] = await DB.instance
+      .update(clientsTable)
       .set({
         ...clientAttr,
         company: clientAttr.company || null,
@@ -43,7 +45,8 @@ export default class ClientService {
   }
 
   static readonly deleteClient = async (clientId: string, userId: string) => {
-    const [client = undefined] = await DB.$.delete(clientsTable)
+    const [client = undefined] = await DB.instance
+      .delete(clientsTable)
       .where(
         and(eq(clientsTable.id, clientId), eq(clientsTable.userId, userId))
       )
@@ -58,7 +61,8 @@ export default class ClientService {
     clientId: string,
     userId: string
   ) => {
-    const [client = undefined] = await DB.$.select()
+    const [client = undefined] = await DB.instance
+      .select()
       .from(clientsTable)
       .where(
         and(eq(clientsTable.id, clientId), eq(clientsTable.userId, userId))
@@ -70,7 +74,8 @@ export default class ClientService {
   }
 
   static readonly getAllClientsByUser = async (userId: string) => {
-    const clients = await DB.$.select()
+    const clients = await DB.instance
+      .select()
       .from(clientsTable)
       .where(eq(clientsTable.userId, userId))
 

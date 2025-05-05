@@ -18,8 +18,7 @@ export const signupUserDto = z.object({
         message:
           'Password must contain at least one lowercase letter, one uppercase letter, and one number',
       }
-    )
-    .transform(async (arg) => await Hashing.hash(arg)),
+    ),
 })
 
 export const signinUserDto = z.object({
@@ -37,20 +36,24 @@ export const signinUserDto = z.object({
         message:
           'Password must contain at least one lowercase letter, one uppercase letter, and one number',
       }
-    )
-    .transform(async (arg) => await Hashing.hash(arg)),
+    ),
 })
 
-export const changeUserRoleDto = z.object({
-  email: z.string().email(),
-  role: z
-    .array(z.enum(userRoleEnum.enumValues), {
-      required_error: 'Role is required',
-    })
-    .refine((role) => role.length > 0, {
-      message: 'Role must not be empty',
-    }),
-})
+export const changeUserRoleDto = z.object(
+  {
+    email: z.string().email(),
+    role: z
+      .array(z.enum(userRoleEnum.enumValues), {
+        required_error: 'Role is required',
+      })
+      .refine((role) => role.length > 0, {
+        message: 'Role must not be empty',
+      }),
+  },
+  {
+    message: 'Request body required!',
+  }
+)
 
 export type SignupUserDto = z.infer<typeof signupUserDto>
 export type SigninUserDto = z.infer<typeof signinUserDto>

@@ -8,14 +8,14 @@ import cookieParser from 'cookie-parser'
 import express, { Request, Response } from 'express'
 import { DB } from './config'
 
-const startTime = Date.now()
-
-const app = express()
-
-app.use(express.json())
-app.use(cookieParser())
-
 const getApp = async () => {
+  const startTime = Date.now()
+
+  const app = express()
+
+  app.use(express.json())
+  app.use(cookieParser())
+
   try {
     await DB.connect(validatedEnv.DB_URL)
   } catch (error) {
