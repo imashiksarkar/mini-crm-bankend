@@ -96,8 +96,9 @@ export default class AuthService {
       },
     ])
 
+    const { password, ...user } = existingUser
     return {
-      ...existingUser,
+      ...user,
       token: {
         accessToken,
         refreshToken,

@@ -43,6 +43,7 @@ describe('auth', async () => {
       const res = await request(app).post('/auth/signup').send(pokominCred)
 
       expect(res.body.data.email).toBe(pokominCred.email)
+      expect(res.body.data.password).toBeUndefined()
       expect(res.headers['set-cookie']).toHaveLength(2)
     })
 
@@ -55,6 +56,7 @@ describe('auth', async () => {
       expect(res.body.success).toBe(true)
       expect(res.headers['set-cookie']).toHaveLength(2)
       expect(res.body.data.email).toBe(pokominCred.email)
+      expect(res.body.data.password).toBeUndefined()
     })
 
     it('should not be able to signin with wrong password', async () => {
