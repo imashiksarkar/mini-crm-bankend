@@ -101,7 +101,7 @@ This is a structured todo list for building the Mini CRM API. It outlines core f
     }
     ```
 
-  - [ ] view user by id `(GET /auth/users/:userId)`
+  - [x] view user by id `(GET /auth/users/:userId)`
 
     ```json
     // output payload

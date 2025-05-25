@@ -3,6 +3,7 @@ import { Request, Response, Router } from 'express'
 import { changeUserRoleDto, signinUserDto, signupUserDto } from './auth.dtos'
 import AuthService from './auth.service'
 import { requireRole, requireAuth } from '@src/middlewares'
+import { ReqWithUser } from '@src/middlewares/requireAuth.middleware'
 
 class AuthController {
   private static readonly router = Router()
@@ -160,6 +161,23 @@ class AuthController {
           .success(200)
           .message('Tokens refreshed successfully')
           .exec()
+        res.status(r.code).json(r)
+      })
+    )
+  }
+
+  private static readonly profile = async (path = this.getPath('/profile')) => {
+    this.router.get(
+      path,
+      requireAuth(),
+      catchAsync(async (req: ReqWithUser, res: Response) => {
+        const { id } = req.locals.user
+
+        const user = await this.authService.getUserById(id)
+
+        if (!user) throw response().error(404).message('User not found').exec()
+
+        const r = response().success(200).data(user).exec()
         res.status(r.code).json(r)
       })
     )
