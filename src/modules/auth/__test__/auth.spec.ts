@@ -202,4 +202,31 @@ describe('auth', async () => {
 
     expect(res.body.success).toBe(true)
   })
+
+  it('allows admin to fetch all users', async () => {
+    // signup a user
+    const user = await request(app)
+      .post('/auth/signup')
+      .send(pokominCred)
+      .expect(201)
+
+    // make the user admin using service
+    await authService.changeRole({
+      email: user.body.data.email,
+      role: ['admin'],
+    })
+
+    // signin as admin
+    const admin = await request(app)
+      .post('/auth/signin')
+      .send(pokominCred)
+      .expect(200)
+    const [adminAT] = admin.headers['set-cookie']
+
+    // fetch all users as admin
+    const users = await request(app).get('/auth/users').set('Cookie', adminAT)
+
+    expect(users.body.success).toBe(true)
+    expect(users.body.data.length).toBeGreaterThan(0)
+  })
 })

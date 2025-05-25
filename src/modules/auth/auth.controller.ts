@@ -164,6 +164,34 @@ class AuthController {
       })
     )
   }
+
+  /* Admin routes end here */
+  private static readonly getAllUsers = async (
+    path = this.getPath('/users')
+  ) => {
+    this.router.get(
+      path,
+      requireAuth(),
+      requireRole(['admin']),
+      catchAsync(async (req: Request, res: Response) => {
+        // const users = await this.authService.getAllUsers()
+
+        // const r = response().success(200).data(users).exec()
+        // res.status(r.code).json(r)
+        res.status(200).json({
+          success: true,
+          data: [
+            {
+              id: '63d5b5c3c3c3c3c3c3c3c3c3',
+              name: 'John Doe',
+              email: 'vM4o3@example.com',
+              role: ['admin'],
+            },
+          ],
+        })
+      })
+    )
+  }
 }
 
 export default AuthController.authModule as Router
