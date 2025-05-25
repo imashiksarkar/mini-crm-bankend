@@ -8,17 +8,26 @@ function load_env() {
   set +a
 }
 
-function is_test_env() {
-  read -rp "? Setup for test environment (Y/n): " IS_TEST
+function get_env() {
+  local env
 
-  if [[ "$IS_TEST" == "n" || "$IS_TEST" == "N" ]]; then
-    echo "n"
-    return 0
-  else
-    echo "y"
-    return 0
-  fi
+  while [[ "$env" != "test" && "$env" != "dev" ]]; do
+    read -rp "? What environment do you want to setup (TEST/dev): " env
+    # lower case
+    env="${env,,}"
 
+    trimmed="$(echo -e "$env" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+
+    if [[ -z "$trimmed" ]]; then
+      echo "test"
+      break
+    fi
+
+  done
+
+  echo "$env"
+
+  return 0
 }
 
 function wait_for_docker() {
@@ -108,25 +117,27 @@ function down() {
   exit 0
 }
 
-env="$1"
+arg="$1"
 
 main() {
   load_env .env.local
 
-  local is_test_env
+  local env
 
-  if [[ "$env" == "-y" || "$env" == "-Y" ]]; then
-    is_test_env="y"
-  elif [[ "$env" == "-n" || "$env" == "-N" ]]; then
-    is_test_env="n"
+  arg="${arg,,}"
+
+  if [[ "$arg" == "--dev" ]]; then
+    env="dev"
+  elif [[ "$arg" == "--test" ]]; then
+    env="test"
   else
-    is_test_env="$(is_test_env)"
+    env="$(get_env)"
   fi
 
-  if [[ "$is_test_env" == "y" ]]; then
+  if [[ "$env" == "test" ]]; then
     export DB_URL="postgresql://testuser:testpassword@localhost:5432/minicrm?schema=public"
     up postgres-test
-  else
+  elif [[ "$env" == "dev" ]]; then
     up postgres-dev
   fi
 
