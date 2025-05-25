@@ -117,10 +117,10 @@ function down() {
   exit 0
 }
 
-arg="$1"
-
 main() {
   load_env .env.local
+
+  arg="$1"
 
   local env
 
