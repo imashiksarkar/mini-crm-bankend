@@ -4,8 +4,6 @@ import request from 'supertest'
 import { describe, expect, it } from 'vitest'
 import { ChangeUserRoleDto, signupUserDto } from '../auth.dtos'
 import authService from '../auth.service'
-import { DB } from '@src/config'
-import { usersTable } from '../db/schema'
 
 describe('auth', async () => {
   const app = await appPromisse
@@ -262,8 +260,7 @@ describe('auth', async () => {
       .get(`/auth/users/${user.body.data.id}`)
       .set('Cookie', adminAT)
 
-    console.log(users.body)
-
     expect(users.body.success).toBe(true)
+    expect(users.body.data).toBeDefined()
   })
 })

@@ -193,4 +193,22 @@ export default class AuthService {
 
     return users
   }
+
+  static readonly getUserById = async (userId: string) => {
+    const { id, name, email, role, createdAt, updatedAt } = usersTable
+
+    const [user = null] = await DB.instance
+      .select({
+        id,
+        name,
+        email,
+        role,
+        createdAt,
+        updatedAt,
+      })
+      .from(usersTable)
+      .where(eq(usersTable.id, userId))
+
+    return user
+  }
 }

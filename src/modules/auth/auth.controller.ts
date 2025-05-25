@@ -190,21 +190,12 @@ class AuthController {
       requireAuth(),
       requireRole(['admin']),
       catchAsync(async (req: Request, res: Response) => {
-        // const users = await this.authService.getAllUsers()
+        const user = await this.authService.getUserById(req.params.userId)
 
-        // const r = response().success(200).data(users).exec()
-        // res.status(r.code).json(r)
-        res.status(200).json({
-          success: true,
-          data: [
-            {
-              id: '63d5b5c3c3c3c3c3c3c3c3c3',
-              name: 'John Doe',
-              email: 'vM4o3@example.com',
-              role: ['admin'],
-            },
-          ],
-        })
+        if (!user) throw response().error(404).message('User not found').exec()
+
+        const r = response().success(200).data(user).exec()
+        res.status(r.code).json(r)
       })
     )
   }
