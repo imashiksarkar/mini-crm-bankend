@@ -2,7 +2,6 @@
 
 function load_env() {
   local file="${1:-.env.local}"
-  echo "🔍 Loading env from $file"
   set -a
   source "$file"
   set +a
@@ -69,10 +68,15 @@ function is_compose_running() {
 }
 
 function start_studio() {
-  echo " 👉 Run Studio"
+  echo "▶ Run Studio"
+
   pnpm run db:studio &>/dev/null &
-  local STUDIO_PID=$!
-  echo "🔍 Drizzle Studio PID: $STUDIO_PID"
+
+  sleep 1
+
+  # Get actual `node` process running Drizzle Studio
+  drizzle_studio_pid=$(pgrep -f "node.*drizzle-kit.*studio")
+
   echo -ne "🚀 Access the studio via: \033[0;32mhttps://local.drizzle.studio\033[0m"
 }
 
@@ -80,7 +84,7 @@ function up() {
   systemctl --user start docker-desktop
   wait_for_docker
 
-  echo -ne "\n⛔ Cleaning up services..."
+  echo -e "\n⛔ Cleaning up services..."
   docker compose down
   echo "✅ Cleanup complete."
 
@@ -101,6 +105,11 @@ function up() {
 function down() {
   echo -e "\n⛔ Shutting down services..."
 
+  # kill drizzle studio
+  if [[ -n "$drizzle_studio_pid" ]] && kill -0 "$drizzle_studio_pid" 2>/dev/null; then
+    kill "$drizzle_studio_pid"
+  fi
+
   if [[ "$(is_compose_running)" == "y" ]]; then
     echo "▶ Stopping services..."
     docker compose down
@@ -114,22 +123,26 @@ function down() {
   fi
 
   echo
+
   exit 0
 }
+
+arg="$1"
+arg="${arg,,}"
 
 main() {
   load_env .env.local
 
-  arg="$1"
-
   local env
-
-  arg="${arg,,}"
 
   if [[ "$arg" == "--dev" ]]; then
     env="dev"
   elif [[ "$arg" == "--test" ]]; then
     env="test"
+  elif [[ "$arg" == "--down" ]]; then
+    pkill -f crm-setup
+    echo "Setup will go down shortly..."
+    exit 0
   else
     env="$(get_env)"
   fi
@@ -141,8 +154,11 @@ main() {
     up postgres-dev
   fi
 
-  trap down EXIT
-  tail -f /dev/null
+  trap down EXIT SIGINT SIGTERM
+
+  exec -a crm-setup tail -f /dev/null &
+  local tail_pid=$!
+  wait "$tail_pid"
 }
 
 main
