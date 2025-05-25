@@ -176,4 +176,21 @@ export default class AuthService {
       refreshToken: newRefreshToken,
     }
   }
+
+  static readonly getAllUsers = async () => {
+    const { id, name, email, role, createdAt, updatedAt } = usersTable
+
+    const users = await DB.instance
+      .select({
+        id,
+        name,
+        email,
+        role,
+        createdAt,
+        updatedAt,
+      })
+      .from(usersTable)
+
+    return users
+  }
 }

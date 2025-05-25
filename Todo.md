@@ -60,6 +60,8 @@ This is a structured todo list for building the Mini CRM API. It outlines core f
   }
   ```
 
+  - [ ] fetch user profile `(GET /auth/profile)`
+
   - [x] user signout `(DELETE /auth/signout)` <!-- requires access token -->
   - [x] refresh token `(POST /auth/refresh)` <!-- send refresh token via cookie -->
   - [x] protect all user routes (middleware)
@@ -81,7 +83,7 @@ This is a structured todo list for building the Mini CRM API. It outlines core f
 
   - [x] fetch allowed roles `(GET /auth/roles)`
 
-  - [ ] view all users `(GET /auth/users)`
+  - [x] view all users `(GET /auth/users)`
 
     ```json
     // output payload

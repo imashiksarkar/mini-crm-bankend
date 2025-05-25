@@ -27,18 +27,17 @@ class Response {
   }
 
   exec = () => {
-    if (
-      (this.res.data instanceof Array && !this.res.data.length) ||
-      !Object.keys(this.res.data!).length
-    ) {
-      delete this.res.data
-    }
-
+    if (!this.res.success) delete this.res.data
     if (!this.res.message?.length) delete this.res.message
 
-    !Object.keys(this.res.error?.fields!).length &&
+    if (this.res.success) {
+      delete this.res.error
+      return this.res
+    }
+
+    if (!Object.keys(this.res.error?.fields!).length)
       delete this.res.error?.fields
-    !this.res.error?.message!.length && delete this.res.error
+    if (!this.res.error?.message!.length) delete this.res.error
 
     return this.res
   }

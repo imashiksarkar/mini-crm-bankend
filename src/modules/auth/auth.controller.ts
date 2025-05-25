@@ -173,6 +173,22 @@ class AuthController {
       path,
       requireAuth(),
       requireRole(['admin']),
+      catchAsync(async (_req: Request, res: Response) => {
+        const users = await this.authService.getAllUsers()
+
+        const r = response().success(200).data(users).exec()
+        res.status(r.code).json(r)
+      })
+    )
+  }
+
+  private static readonly getUserById = async (
+    path = this.getPath('/users/:userId')
+  ) => {
+    this.router.get(
+      path,
+      requireAuth(),
+      requireRole(['admin']),
       catchAsync(async (req: Request, res: Response) => {
         // const users = await this.authService.getAllUsers()
 

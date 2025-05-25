@@ -4,6 +4,8 @@ import request from 'supertest'
 import { describe, expect, it } from 'vitest'
 import { ChangeUserRoleDto, signupUserDto } from '../auth.dtos'
 import authService from '../auth.service'
+import { DB } from '@src/config'
+import { usersTable } from '../db/schema'
 
 describe('auth', async () => {
   const app = await appPromisse
@@ -210,6 +212,11 @@ describe('auth', async () => {
       .send(pokominCred)
       .expect(201)
 
+    await request(app)
+      .post('/auth/signup')
+      .send({ ...pokominCred, email: 'pokimin2@gmail.com' })
+      .expect(201)
+
     // make the user admin using service
     await authService.changeRole({
       email: user.body.data.email,
@@ -227,6 +234,36 @@ describe('auth', async () => {
     const users = await request(app).get('/auth/users').set('Cookie', adminAT)
 
     expect(users.body.success).toBe(true)
-    expect(users.body.data.length).toBeGreaterThan(0)
+    expect(users.body.data.length).toBe(2)
+  })
+
+  it('allows admin to fetch a single user', async () => {
+    // signup a user
+    const user = await request(app)
+      .post('/auth/signup')
+      .send(pokominCred)
+      .expect(201)
+
+    // make the user admin using service
+    await authService.changeRole({
+      email: user.body.data.email,
+      role: ['admin'],
+    })
+
+    // signin as admin
+    const admin = await request(app)
+      .post('/auth/signin')
+      .send(pokominCred)
+      .expect(200)
+    const [adminAT] = admin.headers['set-cookie']
+
+    // fetch all users as admin
+    const users = await request(app)
+      .get(`/auth/users/${user.body.data.id}`)
+      .set('Cookie', adminAT)
+
+    console.log(users.body)
+
+    expect(users.body.success).toBe(true)
   })
 })
