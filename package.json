@@ -9,13 +9,10 @@
     "build": "rm -rf ./dist && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "vitest --ui",
     "test:run": "vitest --run",
-    "compose:up": "docker compose up postgres-test -d",
-    "compose:down": "docker compose down",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio",
-    "db:update": "pnpm run db:generate && pnpm run db:migrate"
+    "db:studio": "drizzle-kit studio"
   },
   "keywords": [
     "mini-crm",

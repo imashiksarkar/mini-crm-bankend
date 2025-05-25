@@ -1,16 +1,11 @@
 #!/bin/bash
 
-function up_or_down() {
-  read -rp "? UP or DOWN (U/d): " ACTION
-
-  if [[ "$ACTION" == "d" || "$ACTION" == "D" ]]; then
-    echo "d"
-    return 0
-  else
-    echo "u"
-    return 0
-  fi
-
+function load_env() {
+  local file="${1:-.env.local}"
+  echo "🔍 Loading env from $file"
+  set -a
+  source "$file"
+  set +a
 }
 
 function is_test_env() {
@@ -29,12 +24,12 @@ function is_test_env() {
 function wait_for_docker() {
   local MAX_WAIT=30
   local WAITED=0
-  echo -n "⏳ Waiting for Docker to be ready (timeout: ${MAX_WAIT}s)..."
+  echo "⏳ Waiting for Docker to be ready (timeout: ${MAX_WAIT}s)..."
   until docker info >/dev/null 2>&1; do
     sleep 1
     WAITED=$((WAITED + 1))
     if [ "$WAITED" -ge "$MAX_WAIT" ]; then
-      echo -n "❌ Error: Docker did not start within ${MAX_WAIT} seconds."
+      echo "❌ Error: Docker did not start within ${MAX_WAIT} seconds."
       exit 1
     fi
   done
@@ -64,58 +59,79 @@ function is_compose_running() {
 
 }
 
+function start_studio() {
+  echo " 👉 Run Studio"
+  pnpm run db:studio &>/dev/null &
+  local STUDIO_PID=$!
+  echo "🔍 Drizzle Studio PID: $STUDIO_PID"
+  echo -ne "🚀 Access the studio via: \033[0;32mhttps://local.drizzle.studio\033[0m"
+}
+
 function up() {
   systemctl --user start docker-desktop
   wait_for_docker
 
-  echo -ne "⛔ Cleaning up services..."
-  pnpm run compose:down
-  echo -ne "\n✅ Cleanup complete."
+  echo -ne "\n⛔ Cleaning up services..."
+  docker compose down
+  echo "✅ Cleanup complete."
 
-  echo -ne "\n▶ Starting services..."
-  pnpm run compose:up
-  echo -ne "\n✅ Services started."
+  echo "▶ Running docker compose up for: $@"
+  docker compose up "$@" -d
+  echo "✅ Services started."
 
-  echo -ne "\n▶ Running migrations..."
+  echo "▶ Running migrations..."
   pnpm run db:generate
   pnpm run db:migrate
-  echo -ne "\n✅ Migrations complete."
+  echo -e "\n✅ Migrations complete."
 
-  echo -ne "\n✅ Setup complete.\n"
+  echo "✅ Setup complete."
+
+  start_studio
 }
 
 function down() {
-  echo -ne "⛔ Shutting down services..."
+  echo -e "\n⛔ Shutting down services..."
 
   if [[ "$(is_compose_running)" == "y" ]]; then
-    echo -ne "\n▶ Stopping services..."
-    pnpm run compose:down
-    echo -ne "\n✅ Services stopped."
+    echo "▶ Stopping services..."
+    docker compose down
+    echo "✅ Services stopped."
   fi
 
   if [[ "$(is_docker_running)" == "y" ]]; then
-    echo -ne "\n▶ Stopping Docker..."
+    echo "▶ Stopping Docker..."
     systemctl --user stop docker-desktop
-    echo -ne "\n✅ Docker stopped."
+    echo "✅ Docker stopped."
   fi
 
   echo
+  exit 0
 }
 
-main() {
-  local action=$(up_or_down)
+env="$1"
 
-  case "$action" in
-  u)
-    if [[ "$(is_test_env)" == "y" ]]; then
-      export DB_URL="postgresql://testuser:testpassword@localhost:5432/minicrm?schema=public"
-    fi
-    up
-    ;;
-  d)
-    down
-    ;;
-  esac
+main() {
+  load_env .env.local
+
+  local is_test_env
+
+  if [[ "$env" == "-y" || "$env" == "-Y" ]]; then
+    is_test_env="y"
+  elif [[ "$env" == "-n" || "$env" == "-N" ]]; then
+    is_test_env="n"
+  else
+    is_test_env="$(is_test_env)"
+  fi
+
+  if [[ "$is_test_env" == "y" ]]; then
+    export DB_URL="postgresql://testuser:testpassword@localhost:5432/minicrm?schema=public"
+    up postgres-test
+  else
+    up postgres-dev
+  fi
+
+  trap down EXIT
+  tail -f /dev/null
 }
 
 main
