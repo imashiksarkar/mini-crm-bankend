@@ -4,6 +4,7 @@
   "description": "This is a mini-crm api, where freelancers can manage their clients and projects.",
   "main": "dist/server.js",
   "scripts": {
+    "setup": "./setup.sh",
     "dev": "tsx watch ./src/server.ts",
     "build": "rm -rf ./dist && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "vitest --ui",

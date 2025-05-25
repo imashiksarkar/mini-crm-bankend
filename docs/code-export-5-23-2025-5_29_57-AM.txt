@@ -1,0 +1,86 @@
+title Mini-Crm
+notation crows-foot
+typeface clean
+
+users [icon: user] {
+  id string pk
+  name string
+  email string unique
+  password string
+  role? enum(["admin", "user"]) default("user")
+  created_at Date
+  updated_at Date
+}
+
+tokens [icon: key] {
+  id string pk
+  user_id > users.id // ON DELETE CASCADE
+  token string
+  revoked_at Date
+  expires_at Date
+  created_at Date
+  updated_at Date
+}
+
+clients [icon: users] {
+  id string pk
+  user_id > users.id // ON DELETE CASCADE
+  name string
+  email string unique
+  phone string
+  company? string
+  notes? string
+  created_at Date
+  updated_at Date
+}
+
+projects [icon: folder] {
+  id string pk
+  client_id > clients.id // ON DELETE CASCADE
+  user_id > users.id // ON DELETE CASCADE
+  title string
+  budget number
+  deadline Date
+  status? enum(["idle", "in-progress", "finished"]) default("idle")
+  created_at Date
+  updated_at Date
+}
+
+tasks [icon: tasks] {
+  id string pk
+  project_id > projects.id // ON DELETE CASCADE
+  title string
+  done? boolean // default false
+  created_at Date
+  updated_at Date
+}
+
+logs [icon: file-text] {
+  id string pk
+  user_id > users.id // ON DELETE CASCADE
+  client_id? > clients.id // ON DELETE CASCADE
+  project_id? > projects.id // ON DELETE CASCADE
+  interaction_type enum(["calls", "meetings", "emails"])
+  date Date
+  notes string
+  created_at Date
+  updated_at Date
+}
+// client_id or project_id is required
+// both are not accepted
+
+reminders [icon: bell] {
+  id string pk
+  client_id > clients.id // ON DELETE CASCADE
+  project_id? > projects.id // ON DELETE CASCADE
+  user_id > users.id // ON DELETE CASCADE
+  title string
+  description? string
+  due_date Date
+  completed? boolean default(false)
+  created_at Date
+  updated_at Date
+}
+// client_id or project_id is required
+// both are not accepted
+
