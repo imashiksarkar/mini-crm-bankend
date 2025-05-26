@@ -312,7 +312,7 @@ This is a structured todo list for building the Mini CRM API. It outlines core f
 
 - **Role: User**
 
-  - [ ] create own project for own client `(POST /clients/:clientId/projects)`
+  - [x] create own project for own client `(POST /clients/:clientId/projects)`
 
     ```json
     // input payload

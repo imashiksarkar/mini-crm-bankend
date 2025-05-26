@@ -3,7 +3,7 @@ import { requireAuth } from '@src/middlewares'
 import { ReqWithUser } from '@src/middlewares/requireAuth.middleware'
 import { Response, Router } from 'express'
 import ProjectService from './project.service'
-import { createProjectDto } from './project.dtos'
+import { createProjectDto, updateProjectDto } from './project.dtos'
 
 class ProjectController {
   private static readonly router = Router()
@@ -56,7 +56,7 @@ class ProjectController {
         }
 
         const { id } = req.locals.user
-        const body = createProjectDto.parse(req.body)
+        const body = updateProjectDto.parse(req.body)
 
         const updatedProject = await this.projectService.updateProject(
           params.projectId,

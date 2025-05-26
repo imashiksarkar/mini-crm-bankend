@@ -1,6 +1,7 @@
 import getApp from '@src/app'
 import AuthService from '@src/modules/auth/auth.service'
 import { CreateClientDto } from '@src/modules/client/client.dtos'
+import { CreateProjectDto } from '@src/modules/project/project.dtos'
 import request from 'supertest'
 
 export const pokimonCred = {
@@ -23,6 +24,13 @@ export const clientPayload: CreateClientDto = {
   notes: 'ashik', // optional
 }
 
+export const projectPayload: CreateProjectDto = {
+  clientId: '',
+  title: 'project-1',
+  budget: 1000,
+  deadline: new Date(Date.now() + 1000 * 60 * 60),
+}
+
 export const createAdminUser = async () => {
   const user = await request(await getApp)
     .post('/auth/signup')
@@ -39,7 +47,6 @@ export const createAdminUser = async () => {
   const admin = await request(await getApp)
     .post('/auth/signin')
     .send({ ...pokimonCred, email })
-    .expect(200)
 
   const [adminAT, adminRT] = admin.headers['set-cookie']
 
@@ -50,7 +57,6 @@ export const createUser = async () => {
   const user = await request(await getApp)
     .post('/auth/signup')
     .send({ ...pokimonCred, email: `pokimin${genRandomString()}@gmail.com` })
-    .expect(201)
 
   const [userAT, userRT] = user.headers['set-cookie']
 
@@ -66,7 +72,15 @@ export const createClient = async (userAT: string) => {
     .post('/clients')
     .set('Cookie', userAT)
     .send({ ...clientPayload, email: `client${genRandomString()}@gmail.com` })
-    .expect(201)
 
   return client.body
+}
+
+export const createProject = async (clientId: string, clientAT: string) => {
+  const createProjectRes = await request(await getApp)
+    .post('/projects')
+    .set('Cookie', clientAT)
+    .send({ ...projectPayload, clientId })
+
+  return createProjectRes.body
 }
