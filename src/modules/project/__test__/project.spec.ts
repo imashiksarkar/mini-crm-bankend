@@ -150,6 +150,26 @@ describe('Project Module', async () => {
       expect(projects.body.data).toBeDefined()
       expect(projects.body.data.length).toBe(3)
     })
+
+    it('should be able to view own projects filtered by client', async () => {
+      const [_, userAT] = await createUser()
+
+      const clinet = await createClient(userAT)
+      const client2 = await createClient(userAT)
+
+      await createProject(clinet.data.id, userAT)
+      await createProject(clinet.data.id, userAT)
+      await createProject(clinet.data.id, userAT)
+      await createProject(client2.data.id, userAT)
+      await createProject(client2.data.id, userAT)
+
+      const projects = await request(app)
+        .get('/projects?clientId=' + client2.data.id)
+        .set('Cookie', userAT)
+
+      expect(projects.body.data).toBeDefined()
+      expect(projects.body.data.length).toBe(2)
+    })
   })
 
   // describe('Role: Admin', async () => {})

@@ -17,6 +17,14 @@ export const createProjectDto = z.object(
   { message: 'Request body required!' }
 )
 
+export const getProjectsQueryDto = z.object({
+  clientId: z
+    .string({ required_error: 'Client ID is required' })
+    .trim()
+    .min(2)
+    .optional(),
+})
+
 export const updateProjectDto = createProjectDto.omit({ clientId: true })
 
 export type CreateProjectDto = z.infer<typeof createProjectDto>

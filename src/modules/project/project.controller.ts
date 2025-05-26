@@ -3,7 +3,11 @@ import { requireAuth } from '@src/middlewares'
 import { ReqWithUser } from '@src/middlewares/requireAuth.middleware'
 import { Response, Router } from 'express'
 import ProjectService from './project.service'
-import { createProjectDto, updateProjectDto } from './project.dtos'
+import {
+  createProjectDto,
+  getProjectsQueryDto,
+  updateProjectDto,
+} from './project.dtos'
 
 class ProjectController {
   private static readonly router = Router()
@@ -99,8 +103,9 @@ class ProjectController {
       requireAuth(),
       catchAsync(async (req: ReqWithUser, res: Response) => {
         const { id } = req.locals.user
+        const query = getProjectsQueryDto.parse(req.query)
 
-        const projects = await this.projectService.getProjects(id)
+        const projects = await this.projectService.getProjects(id, query.clientId)
 
         const r = response().success(200).data(projects).exec()
         res.status(r.code).json(r)
