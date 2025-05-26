@@ -344,7 +344,7 @@ This is a structured todo list for building the Mini CRM API. It outlines core f
     }
     ```
 
-  - [ ] update own project `(PATCH /projects/:projectId)`
+  - [x] update own project `(PATCH /projects/:projectId)`
 
     ```json
     // input payload
@@ -395,7 +395,7 @@ This is a structured todo list for building the Mini CRM API. It outlines core f
     }
     ```
 
-  - [ ] view own projects `(GET /projects)`
+  - [ ] get own projects `(GET /projects)`
 
     ```json
     // output payload

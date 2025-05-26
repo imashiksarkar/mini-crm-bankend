@@ -92,6 +92,21 @@ class ProjectController {
       })
     )
   }
+
+  private static readonly getProjects = async (path = this.getPath('/')) => {
+    this.router.get(
+      path,
+      requireAuth(),
+      catchAsync(async (req: ReqWithUser, res: Response) => {
+        const { id } = req.locals.user
+
+        const projects = await this.projectService.getProjects(id)
+
+        const r = response().success(200).data(projects).exec()
+        res.status(r.code).json(r)
+      })
+    )
+  }
 }
 
 export default ProjectController.projectModule as Router

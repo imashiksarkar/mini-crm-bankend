@@ -85,4 +85,13 @@ export default class ProjectService {
 
     return project
   }
+
+  static readonly getProjects = async (userId: string) => {
+    const projects = await DB.instance
+      .delete(projectsTable)
+      .where(eq(projectsTable.userId, userId))
+      .returning()
+
+    return projects
+  }
 }

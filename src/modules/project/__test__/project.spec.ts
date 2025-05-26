@@ -133,6 +133,23 @@ describe('Project Module', async () => {
         /not found/gi
       )
     })
+
+    it('should be able to view own projects', async () => {
+      const [_, pokimonAT] = await createUser()
+
+      const pokimonClient = await createClient(pokimonAT)
+
+      await createProject(pokimonClient.data.id, pokimonAT)
+      await createProject(pokimonClient.data.id, pokimonAT)
+      await createProject(pokimonClient.data.id, pokimonAT)
+
+      const projects = await request(app)
+        .get('/projects')
+        .set('Cookie', pokimonAT)
+
+      expect(projects.body.data).toBeDefined()
+      expect(projects.body.data.length).toBe(3)
+    })
   })
 
   // describe('Role: Admin', async () => {})
