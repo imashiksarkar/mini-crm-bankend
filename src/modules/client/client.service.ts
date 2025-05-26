@@ -79,8 +79,6 @@ export default class ClientService {
       .from(clientsTable)
       .where(eq(clientsTable.userId, userId))
 
-    if (!clients) throw response().error(404).message('Client not found').exec()
-
     return clients
   }
 }

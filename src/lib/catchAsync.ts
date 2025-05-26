@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from 'express'
 
 const catchAsync =
-  (cb: Function) => async (req: Request, res: Response, next: NextFunction) => {
+  <T = undefined>(cb: Function) =>
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await cb(req as Request, res, next)
+      return (await cb(req, res, next)) as T
     } catch (error) {
       next(error)
     }

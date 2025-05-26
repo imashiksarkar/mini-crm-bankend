@@ -1,9 +1,10 @@
-import { Router, Request, Response } from 'express'
+import { Router, Request, Response, NextFunction } from 'express'
 import ClientService from './client.service'
 import { catchAsync, response } from '@src/lib'
 import { createClientDto, updateUserDto } from './client.dtos'
 import { requireAuth, requireRole } from '@src/middlewares'
 import { ReqWithUser } from '@src/middlewares/requireAuth.middleware'
+import { Res } from '@src/lib/response'
 
 class ClientController {
   private static readonly router = Router()
@@ -135,14 +136,31 @@ class ClientController {
     this.router.get(
       path,
       requireAuth(),
-      catchAsync(async (req: ReqWithUser, res: Response) => {
-        const { id } = req.locals.user
+      catchAsync(
+        async (req: ReqWithUser, res: Response, next: NextFunction) => {
+          const { id } = req.locals.user
+          const query = req.query as { userId?: string; as?: 'admin' }
 
-        const updatedClient = await this.clientService.getAllClientsByUser(id)
+          if (query.as === 'admin') {
+            const isAdmin = await requireRole<boolean>(['admin'], true)(
+              req,
+              res,
+              next
+            )
 
-        const r = response().success(200).data(updatedClient).exec()
-        res.status(r.code).json(r)
-      })
+            if (!isAdmin)
+              throw response().error(403).message('Not allowed').exec()
+          }
+
+          const userId =
+            query.userId && query.as === 'admin' ? query.userId : id
+
+          const clients = await this.clientService.getAllClientsByUser(userId)
+
+          const r = response().success(200).data(clients).exec()
+          res.status(r.code).json(r)
+        }
+      )
     )
   }
 }
