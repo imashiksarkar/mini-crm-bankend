@@ -66,96 +66,73 @@ describe('Project Module', async () => {
       expect(updateProjectRes.body.data).toBeDefined()
     })
 
-    // it("should not be able to update others' project", async () => {
-    //   const pokimon = await request(app).post('/auth/signup').send(pokimonCred)
-    //   const [pokimonAT] = pokimon.headers['set-cookie']
+    it("should not be able to update others' project", async () => {
+      const [_, pokimonAT] = await createUser()
 
-    //   const mario = await request(app).post('/auth/signup').send(marioCred)
-    //   const [marioAT] = mario.headers['set-cookie']
+      const [__, marioAT] = await createUser()
 
-    //   const pokimonClient = await request(app)
-    //     .post('/clients')
-    //     .set('Cookie', pokimonAT)
-    //     .send(clientPayload)
-    //     .expect(201)
+      const pokimonClient = await createClient(pokimonAT)
 
-    //   projectPayload.clientId = pokimonClient.body.data.id
+      const pokimonProject = await createProject(
+        pokimonClient.data.id,
+        pokimonAT
+      )
 
-    //   const pokimonProject = await request(app)
-    //     .post('/projects')
-    //     .set('Cookie', pokimonAT)
-    //     .send(projectPayload)
-    //   const projectId = pokimonProject.body.data.id as string
+      const projectId = pokimonProject.data.id
 
-    //   projectPayload.status = 'in-progress'
-    //   const updateProjectRes = await request(app)
-    //     .patch(`/projects/${projectId}`)
-    //     .set('Cookie', marioAT)
-    //     .send(projectPayload)
+      const { clientId, ...updateProjectPayload } = projectPayload
+      const updateProjectRes = await request(app)
+        .patch(`/projects/${projectId}`)
+        .set('Cookie', marioAT)
+        .send({ ...updateProjectPayload, status: 'in-progress' })
 
-    //   expect(updateProjectRes.body.success).toBe(false)
-    //   expect(updateProjectRes.body.error.message.join(',')).toMatch(
-    //     /unauthorized/gi
-    //   )
-    // })
+      expect(updateProjectRes.body.success).toBe(false)
+      expect(updateProjectRes.body.error.message.join(',')).toMatch(
+        /unauthorized/gi
+      )
+    })
 
-    // it('should be able to delete own project', async () => {
-    //   const pokimon = await request(app).post('/auth/signup').send(pokimonCred)
-    //   const [pokimonAT] = pokimon.headers['set-cookie']
+    it('should be able to delete own project', async () => {
+      const [_, pokimonAT] = await createUser()
 
-    //   const pokimonClient = await request(app)
-    //     .post('/clients')
-    //     .set('Cookie', pokimonAT)
-    //     .send(clientPayload)
-    //     .expect(201)
+      const pokimonClient = await createClient(pokimonAT)
 
-    //   projectPayload.clientId = pokimonClient.body.data.id
+      const pokimonProject = await createProject(
+        pokimonClient.data.id,
+        pokimonAT
+      )
+      const projectId = pokimonProject.data.id as string
 
-    //   const pokimonProject = await request(app)
-    //     .post('/projects')
-    //     .set('Cookie', pokimonAT)
-    //     .send(projectPayload)
-    //   const projectId = pokimonProject.body.data.id as string
+      const deleteProjectRes = await request(app)
+        .delete(`/projects/${projectId}`)
+        .set('Cookie', pokimonAT)
 
-    //   const deleteProjectRes = await request(app)
-    //     .delete(`/projects/${projectId}`)
-    //     .set('Cookie', pokimonAT)
+      expect(deleteProjectRes.body.success).toBe(true)
+      expect(deleteProjectRes.body.data.id).toBe(projectId)
+    })
 
-    //   expect(deleteProjectRes.body.success).toBe(true)
-    //   expect(deleteProjectRes.body.data.id).toBe(projectId)
-    // })
+    it("should not be able to delete others' project", async () => {
+      const [_, pokimonAT] = await createUser()
+      const [__, marioAT] = await createUser()
 
-    // it("should not be able to delete others' project", async () => {
-    //   const pokimon = await request(app).post('/auth/signup').send(pokimonCred)
-    //   const [pokimonAT] = pokimon.headers['set-cookie']
+      const pokimonClient = await createClient(pokimonAT)
 
-    //   const mario = await request(app).post('/auth/signup').send(marioCred)
-    //   const [marioAT] = mario.headers['set-cookie']
+      const createProjectRes = await createProject(
+        pokimonClient.data.id,
+        pokimonAT
+      )
+      const projectId = createProjectRes.data?.id as string
 
-    //   const pokimonClient = await request(app)
-    //     .post('/clients')
-    //     .set('Cookie', pokimonAT)
-    //     .send(clientPayload)
-    //     .expect(201)
-    //   projectPayload.clientId = pokimonClient.body.data.id
+      const deleteProjectRes = await request(app)
+        .delete(`/projects/${projectId}`)
+        .set('Cookie', marioAT)
+        .send(projectPayload)
 
-    //   const createProjectRes = await request(app)
-    //     .post('/projects')
-    //     .set('Cookie', pokimonAT)
-    //     .send(projectPayload)
-    //     .expect(201)
-    //   const projectId = createProjectRes.body?.data?.id as string
-
-    //   const deleteProjectRes = await request(app)
-    //     .delete(`/projects/${projectId}`)
-    //     .set('Cookie', marioAT)
-    //     .send(projectPayload)
-
-    //   expect(deleteProjectRes.body.success).toBe(false)
-    //   expect(deleteProjectRes.body.error.message.join(',')).toMatch(
-    //     /not found/gi
-    //   )
-    // })
+      expect(deleteProjectRes.body.success).toBe(false)
+      expect(deleteProjectRes.body.error.message.join(',')).toMatch(
+        /not found/gi
+      )
+    })
   })
 
   // describe('Role: Admin', async () => {})
