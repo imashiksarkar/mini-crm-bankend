@@ -1,79 +1,11 @@
 import appPromise from '@src/app'
+import { clientPayload, createAdminUser, createClient, createUser, marioCred, pokimonCred } from '@src/test/utils'
 import request from 'supertest'
 import { describe, expect, it } from 'vitest'
 import { CreateClientDto } from '../client.dtos'
-import AuthService from '@src/modules/auth/auth.service'
 
 describe('Client Module', async () => {
   const app = await appPromise
-
-  const pokimonCred = {
-    name: 'Pokomin S',
-    email: 'pokomin@gmail.com',
-    password: 'A5shikadmin',
-  }
-
-  const marioCred = {
-    name: 'Mario R',
-    email: 'amrio@gmail.com',
-    password: 'A5shikmario',
-  }
-
-  const clientPayload: CreateClientDto = {
-    name: 'Client 1',
-    email: 'client@gmail.com',
-    phone: '01234567890',
-    company: 'ashik', // optional
-    notes: 'ashik', // optional
-  }
-
-  const createAdminUser = async () => {
-    const user = await request(app)
-      .post('/auth/signup')
-      .send({ ...pokimonCred, email: `pokimin${genRandomString()}@gmail.com` })
-      .expect(201)
-
-    const email = user.body.data.email
-
-    await AuthService.changeRole({
-      email,
-      role: ['admin'],
-    })
-
-    const admin = await request(app)
-      .post('/auth/signin')
-      .send({ ...pokimonCred, email })
-      .expect(200)
-
-    const [adminAT, adminRT] = admin.headers['set-cookie']
-
-    return [admin.body, adminAT, adminRT]
-  }
-
-  const createUser = async () => {
-    const user = await request(app)
-      .post('/auth/signup')
-      .send({ ...pokimonCred, email: `pokimin${genRandomString()}@gmail.com` })
-      .expect(201)
-
-    const [userAT, userRT] = user.headers['set-cookie']
-
-    return [user.body, userAT, userRT]
-  }
-
-  const genRandomString = () => {
-    return Math.random().toString(36).substring(2, 15)
-  }
-
-  const createClient = async (userAT: string) => {
-    const client = await request(app)
-      .post('/clients')
-      .set('Cookie', userAT)
-      .send({ ...clientPayload, email: `client${genRandomString()}@gmail.com` })
-      .expect(201)
-
-    return client.body
-  }
 
   describe('Role: User', () => {
     it('should be able to create own client', async () => {
