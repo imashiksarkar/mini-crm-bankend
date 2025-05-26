@@ -241,7 +241,7 @@ This is a structured todo list for building the Mini CRM API. It outlines core f
 
 - **Role: Admin**
 
-  - [ ] view all clients of a user `(GET /clients?userId=<userId>&as=admin)`
+  - [x] view all clients of a user `(GET /clients?userId=<userId>&as=admin)`
 
     ```json
     // all clients by all users

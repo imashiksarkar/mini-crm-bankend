@@ -59,14 +59,16 @@ export default class ClientService {
 
   static readonly getClientDetails = async (
     clientId: string,
-    userId: string
+    userId?: string
   ) => {
-    const [client = undefined] = await DB.instance
+    const where = userId
+      ? and(eq(clientsTable.id, clientId), eq(clientsTable.userId, userId))
+      : eq(clientsTable.id, clientId)
+
+    const [client = null] = await DB.instance
       .select()
       .from(clientsTable)
-      .where(
-        and(eq(clientsTable.id, clientId), eq(clientsTable.userId, userId))
-      )
+      .where(where)
 
     if (!client) throw response().error(404).message('Client not found').exec()
 

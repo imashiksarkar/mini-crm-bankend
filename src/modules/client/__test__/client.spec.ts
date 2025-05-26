@@ -30,17 +30,19 @@ describe('Client Module', async () => {
   const createAdminUser = async () => {
     const user = await request(app)
       .post('/auth/signup')
-      .send(pokimonCred)
+      .send({ ...pokimonCred, email: `pokimin${genRandomString()}@gmail.com` })
       .expect(201)
 
+      const email = user.body.data.email
+
     await AuthService.changeRole({
-      email: user.body.data.email,
+      email,
       role: ['admin'],
     })
 
     const admin = await request(app)
       .post('/auth/signin')
-      .send(pokimonCred)
+      .send({...pokimonCred, email})
       .expect(200)
 
     const [adminAT, adminRT] = admin.headers['set-cookie']
@@ -279,6 +281,36 @@ describe('Client Module', async () => {
 
       await request(app)
         .get(`/clients?userId=${user1.data.id}&as=admin`)
+        .set('Cookie', adminAT)
+        .expect(200)
+    })
+
+    it('can get client details of any user', async () => {
+      const [_, user1AT] = await createUser()
+      await createClient(user1AT)
+      await createClient(user1AT)
+      await createClient(user1AT)
+      await createClient(user1AT)
+      const c = await createClient(user1AT)
+
+      const [__, user2AT] = await createUser()
+      const [___, adminAT] = await createAdminUser()
+
+      // can fetch own client detail
+      await request(app)
+        .get(`/clients/${c.data.id}`)
+        .set('Cookie', user1AT)
+        .expect(200)
+
+      // can't fetch client detail of other user
+      await request(app)
+        .get(`/clients/${c.data.id}`)
+        .set('Cookie', user2AT)
+        .expect(404)
+
+      // can fetch client detail of any user as admin
+      await request(app)
+        .get(`/clients/${c.data.id}?as=admin`)
         .set('Cookie', adminAT)
         .expect(200)
     })

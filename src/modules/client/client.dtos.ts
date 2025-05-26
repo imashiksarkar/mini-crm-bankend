@@ -10,6 +10,16 @@ export const createClientDto = z.object({
   notes: z.string().trim().min(2).optional(),
 })
 
+export const getClientDetailsParamsDto = z.object({
+  clientId: z.string({ required_error: 'Client ID is required' }).trim().min(2),
+})
+
+export const getClientDetailsQueryDto = z
+  .object({
+    as: z.enum(['admin']).optional(),
+  })
+  .transform((old) => ({ ...old, asAdmin: old.as === 'admin' }))
+
 export const updateUserDto = createClientDto
 
 export type CreateClientDto = z.infer<typeof createClientDto>
