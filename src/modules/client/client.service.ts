@@ -44,12 +44,14 @@ export default class ClientService {
     return client
   }
 
-  static readonly deleteClient = async (clientId: string, userId: string) => {
-    const [client = undefined] = await DB.instance
+  static readonly deleteClient = async (clientId: string, userId?: string) => {
+    const where = userId
+      ? and(eq(clientsTable.id, clientId), eq(clientsTable.userId, userId))
+      : eq(clientsTable.id, clientId)
+
+    const [client = null] = await DB.instance
       .delete(clientsTable)
-      .where(
-        and(eq(clientsTable.id, clientId), eq(clientsTable.userId, userId))
-      )
+      .where(where)
       .returning()
 
     if (!client) throw response().error(404).message('Client not found').exec()

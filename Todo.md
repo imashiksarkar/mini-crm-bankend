@@ -265,7 +265,7 @@ This is a structured todo list for building the Mini CRM API. It outlines core f
     }
     ```
 
-  - [ ] view client detail `(GET /clients/:clientId?as=admin)`
+  - [x] view client detail `(GET /clients/:clientId?as=admin)`
 
     ```json
     // output payload
@@ -284,7 +284,7 @@ This is a structured todo list for building the Mini CRM API. It outlines core f
     }
     ```
 
-  - [ ] delete client `(DELETE /clients/:clientId?as=admin)`
+  - [x] delete client `(DELETE /clients/:clientId?as=admin)`
 
     ```json
     // output payload

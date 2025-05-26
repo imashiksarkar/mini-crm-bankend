@@ -3,6 +3,8 @@ import ClientService from './client.service'
 import { catchAsync, response } from '@src/lib'
 import {
   createClientDto,
+  deleteClientParamsDto,
+  deleteClientQueryDto,
   getClientDetailsParamsDto,
   getClientDetailsQueryDto,
   updateUserDto,
@@ -87,23 +89,20 @@ class ClientController {
       requireAuth(),
       catchAsync(async (req: ReqWithUser, res: Response) => {
         const { id } = req.locals.user
-        const params = req.params as {
-          clientId?: string
-        }
+        const params = deleteClientParamsDto.parse(req.params)
+        const query = deleteClientQueryDto.parse(req.query)
 
-        if (!params.clientId)
-          throw response().error(400).message('client id is required').exec()
-
-        const updatedClient = await this.clientService.deleteClient(
+        const deletedClient = await this.clientService.deleteClient(
           params.clientId,
-          id
+          query.asAdmin ? undefined : id
         )
 
         const r = response()
           .success(200)
-          .data(updatedClient)
+          .data(deletedClient)
           .message('Client deleted successfully.')
           .exec()
+
         res.status(r.code).json(r)
       })
     )

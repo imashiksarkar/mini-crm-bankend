@@ -33,7 +33,7 @@ describe('Client Module', async () => {
       .send({ ...pokimonCred, email: `pokimin${genRandomString()}@gmail.com` })
       .expect(201)
 
-      const email = user.body.data.email
+    const email = user.body.data.email
 
     await AuthService.changeRole({
       email,
@@ -42,7 +42,7 @@ describe('Client Module', async () => {
 
     const admin = await request(app)
       .post('/auth/signin')
-      .send({...pokimonCred, email})
+      .send({ ...pokimonCred, email })
       .expect(200)
 
     const [adminAT, adminRT] = admin.headers['set-cookie']
@@ -311,6 +311,36 @@ describe('Client Module', async () => {
       // can fetch client detail of any user as admin
       await request(app)
         .get(`/clients/${c.data.id}?as=admin`)
+        .set('Cookie', adminAT)
+        .expect(200)
+    })
+
+    it('can delete client of any user', async () => {
+      const [_, user1AT] = await createUser()
+      await createClient(user1AT)
+      const c = await createClient(user1AT)
+      await createClient(user1AT)
+      const c2 = await createClient(user1AT)
+      await createClient(user1AT)
+
+      const [__, user2AT] = await createUser()
+      const [___, adminAT] = await createAdminUser()
+
+      // can delete own client
+      await request(app)
+        .delete(`/clients/${c.data.id}`)
+        .set('Cookie', user1AT)
+        .expect(200)
+
+      // can't delete other's client
+      await request(app)
+        .delete(`/clients/${c2.data.id}`)
+        .set('Cookie', user2AT)
+        .expect(404)
+
+      // can delete other's client as admin
+      await request(app)
+        .delete(`/clients/${c2.data.id}?as=admin`)
         .set('Cookie', adminAT)
         .expect(200)
     })
